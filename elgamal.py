@@ -34,13 +34,11 @@ def keygen():
 
 
 def encrypt(pk,m):
-    r=random.randrange(2, p)
-    c1 = power(g,r,p)
-    c2 = (power(pk,r,p)*(m%p))%p
+    c1=0
+    c2=0
     return [c1,c2]
 
 
 def decrypt(sk,c):
-    d = inverseModular(c[0],sk,p)
-    m = (c[1]*d)%p
+    m=0
     return m
