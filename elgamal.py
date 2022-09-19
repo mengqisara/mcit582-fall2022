@@ -28,13 +28,13 @@ def inverseModular(c1,a,p):
 
 
 def keygen():
-    sk = random.randrange(2, p-1)
+    sk = random.randrange(2, p)
     pk=power(g,sk,p)
     return pk,sk
 
 
 def encrypt(pk,m):
-    r=random.randrange(2, p-1)
+    r=random.randrange(2, p)
     c1 = power(g,r,p)
     c2 = (power(pk,r,p)*(m%p))%p
     return [c1,c2]
