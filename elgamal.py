@@ -43,6 +43,6 @@ def encrypt(pk,m):
 
 def decrypt(sk,c):
     d = inverseModular(c[0],sk,p)
-    m = (c[1]*d)%p
+    m = (c[1]%p*d)%p
     return m
 
