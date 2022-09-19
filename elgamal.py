@@ -28,17 +28,19 @@ def inverseModular(c1,a,p):
 
 
 def keygen():
-    sk = random.randrange(2, p)
+    sk = random.randrange(1, p)
     pk=power(g,sk,p)
     return pk,sk
 
 
 def encrypt(pk,m):
-    c1=0
-    c2=0
+    r=random.randrange(1, p)
+    c1 = power(g,r,p)
+    c2 = (power(pk,r,p)*m)%p
     return [c1,c2]
 
 
 def decrypt(sk,c):
-    m=0
+    d = inverseModular(c[0],sk,p)
+    m = (c[1]*d)%p
     return m
