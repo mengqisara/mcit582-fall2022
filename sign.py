@@ -10,7 +10,7 @@ def sign(m):
 	#generate public key
 	#Your code here
 	G = secp256k1.G
-	n = G.order()
+	n = secp256k1.order
 	sk = random.randrange(1, n)
 	public_key = sk*G
 
