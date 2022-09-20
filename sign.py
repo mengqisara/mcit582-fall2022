@@ -9,7 +9,7 @@ from hashlib import sha256
 def sign(m):
 	#generate public key
 	#Your code here
-	G = secp256k1.G
+	G = curve.secp256k1.G
 	n = curve.secp256k1.q
 	sk = random.randrange(1, n)
 	public_key = sk*G
