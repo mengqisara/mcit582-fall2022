@@ -10,7 +10,7 @@ def sign(m):
 	#generate public key
 	#Your code here
 	G = secp256k1.G
-	n = secp256k1.order
+	n = curve.secp256k1.q
 	sk = random.randrange(1, n)
 	public_key = sk*G
 
