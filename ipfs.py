@@ -13,14 +13,7 @@ def pin_to_ipfs(data):
     
 
     #hash = p['Hash']
-    hash=[]
-    dec = json.JSONDecoder()
-    i = 0
-    while i < len(response.text):
-        res, s = dec.raw_decode(response.text[i:])
-        i += s+1
-        hash.append(res['Hash'])
-    return hash
+    return response.text[0:].split(",")[1].split(":")[1].replace('"','')
 
 
 def get_from_ipfs(cid, content_type="json"):
