@@ -5,7 +5,7 @@ def pin_to_ipfs(data):
 	assert isinstance(data,dict), f"Error pin_to_ipfs expects a dictionary"
 	#YOUR CODE HERE
 	files = {
-	'file': data
+	'file': json.dumps(data)
 	}
 
 	response = requests.post(
