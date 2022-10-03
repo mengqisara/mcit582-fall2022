@@ -9,7 +9,7 @@ def pin_to_ipfs(data):
 	'https://ipfs.infura.io:5001/api/v0/add',
 	files=data,
 	auth=(
-	<project_id>,<project_secret>)
+	"<ADD PROJECT ID HERE>","<ADD PROJECT SECRET HERE>")
 	)
 
 	return response.text.split(",")[1].split(":")[1].replace('"','')
@@ -21,7 +21,7 @@ def get_from_ipfs(cid,content_type="json"):
 	('arg',cid),
 	)
 	response = requests.post('https://ipfs.infura.io:5001/api/v0/cat', params=params, auth=(<project_id>,<project_secret>))
-
+	data=response.json()
 	assert isinstance(data,dict), f"get_from_ipfs should return a dict"
 	return response.json()
 
