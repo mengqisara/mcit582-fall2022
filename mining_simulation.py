@@ -57,7 +57,8 @@ def Simulate(alpha,gamma,N, seed):
             elif r<=alpha+(1-alpha)*gamma:
                 SelfishRevenue+=1
             else:
-            
+                SelfishRevenue+=0
+                
             ChainLength=0
             NumHiddenBlock=0
             state=0
