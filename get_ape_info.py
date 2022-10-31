@@ -39,7 +39,7 @@ def get_ape_info(apeID):
 		print( f"Failed to get {result} from {ABI_ENDPOINT}" )
 		print( e )
 	
-	print(type(response))
+	print(response)
 	
 	data['owner'].append(response(0))
 	data['image'].append(response(1))
