@@ -41,7 +41,7 @@ def get_ape_info(apeID):
 		'arg': result
 	}
 	try:
-		response = requests.post( 'https://ipfs.infura.io:5001/api/v0/cat', params=params, auth=('2AY9kF5JsISRy5RUfzN5dDxebUy','748939e110ae212061018c8310b64792'))
+		response = requests.post( 'https://ipfs.infura.io:5001/api/v0/cat', params=params, auth=('2GtDaQ4yz3cCIepfeZPANCcGibh','3b48f90ba049d03252d7ab581e2374f6'))
 		res1 = json.loads(response.json())
 	except Exception as e:
 		print( f"Failed to get result from IPFS node" )
