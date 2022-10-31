@@ -26,7 +26,6 @@ def get_ape_info(apeID):
 	assert 1 <= apeID, f"{apeID} must be at least 1"
 
 	data = {'owner': "", 'image': "", 'eyes': "" }
-	res1={}
 	
 	#YOUR CODE HERE	
 	contract = web3.eth.contract(address=contract_address,abi=abi)
