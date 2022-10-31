@@ -29,10 +29,10 @@ def get_ape_info(apeID):
 	
 	#YOUR CODE HERE	
 	try:
-	  data = requests.get( f"{api_url}{apeID}", timeout = 20 )	
+		data = requests.get( f"{api_url}{apeID}", timeout = 20 )	
   except Exception as e:
-	  print( f"Failed to get {contract_address} from {ABI_ENDPOINT}" )
-	  print( e )
+		print( f"Failed to get {contract_address} from {ABI_ENDPOINT}" )
+		print( e )
 
 	assert isinstance(data,dict), f'get_ape_info{apeID} should return a dict' 
 	assert all( [a in data.keys() for a in ['owner','image','eyes']] ), f"return value should include the keys 'owner','image' and 'eyes'"
