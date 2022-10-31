@@ -38,7 +38,7 @@ def get_ape_info(apeID):
 
 	ABI_ENDPOINT = 'https://ipfs.infura.io:5001/api/v0/cat?arg='
 	try:
-		response = requests.post( f'{ABI_ENDPOINT}{result}' )
+		response = requests.post( f'{ABI_ENDPOINT}{result}' ,auth=('2AY9kF5JsISRy5RUfzN5dDxebUy','748939e110ae212061018c8310b64792'))
 		res1 = json.loads(response.json())
 	except Exception as e:
 		print( f"Failed to get {result} from {ABI_ENDPOINT}" )
