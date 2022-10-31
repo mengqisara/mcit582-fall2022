@@ -45,7 +45,7 @@ def get_ape_info(apeID):
 	except Exception as e:
 		print( f"Failed to get {result} from IPFS node" )
 		print( e )
-	
+	print(res1)
 	data['owner']=owner
 	data['image']=res1['image']
 	data['eyes']=res1['attributes'][4]['value']
