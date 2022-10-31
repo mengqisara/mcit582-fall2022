@@ -29,7 +29,7 @@ def get_ape_info(apeID):
 	
 	#YOUR CODE HERE	
 	contract = web3.eth.contract(address=contract_address,abi=abi)
-	result = contract.methods.tokenURI(apeID).call()
+	result = contract.functions.tokenURI(apeID).call()
 	result = result.replace("ipfs://","")
 
 	ABI_ENDPOINT = 'https://ipfs.infura.io:5001/api/v0/cat?arg='
