@@ -29,9 +29,9 @@ def get_ape_info(apeID):
 	
 	#YOUR CODE HERE	
 	try:
-		data = requests.get( f"{api_url}{apeID}", timeout = 20 )	
-        except Exception as e:
-		print( f"Failed to get {contract_address} from {ABI_ENDPOINT}" )
+		data = requests.get( f"{api_url}{apeID}", timeout = 20 )
+	except Exception as e:
+		print( f"Failed to get {contract_address} from {api_url}" )
 		print( e )
 
 	assert isinstance(data,dict), f'get_ape_info{apeID} should return a dict' 
