@@ -47,7 +47,7 @@ def get_ape_info(apeID):
 		print( e )
 	
 	data['owner']=owner
-	data['image']=res1['image']
+	data['image']=res1['attributes'][4]['value']
 	data['eyes']=res1['attributes'][3]['value']
 
 	assert isinstance(data,dict), f'get_ape_info{apeID} should return a dict' 
