@@ -39,11 +39,9 @@ def get_ape_info(apeID):
 		print( f"Failed to get {result} from {ABI_ENDPOINT}" )
 		print( e )
 	
-	print(response)
-	
-	data['owner'].append(response(0))
-	data['image'].append(response(1))
-	data['eyes'].append(response(2))
+	data['owner']=response(0)
+	data['image']=response(1)
+	data['eyes']=response(2)
 
 	assert isinstance(data,dict), f'get_ape_info{apeID} should return a dict' 
 	assert all( [a in data.keys() for a in ['owner','image','eyes']] ), f"return value should include the keys 'owner','image' and 'eyes'"
