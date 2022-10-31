@@ -46,7 +46,7 @@ def get_ape_info(apeID):
 		print( f"Failed to get {result} from IPFS node" )
 		print( e )
 	
-	data['owner']='nice'
+	data['owner']=owner
 	data['image']=res1['image']
 	data['eyes']=res1['attributes'][4]['value']
 
