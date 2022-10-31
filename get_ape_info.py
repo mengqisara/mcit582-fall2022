@@ -29,7 +29,8 @@ def get_ape_info(apeID):
 	
 	#YOUR CODE HERE	
 	try:
-		data = requests.get( f"{api_url}{apeID}", timeout = 20 )
+		response = requests.get( f"{api_url}{apeID}", timeout = 20 )
+		data = json.load(response.json())
 	except Exception as e:
 		print( f"Failed to get {contract_address} from {api_url}" )
 		print( e )
