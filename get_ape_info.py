@@ -30,7 +30,7 @@ def get_ape_info(apeID):
 	#YOUR CODE HERE	
 	try:
 		data = requests.get( f"{api_url}{apeID}", timeout = 20 )	
-  except Exception as e:
+        except Exception as e:
 		print( f"Failed to get {contract_address} from {ABI_ENDPOINT}" )
 		print( e )
 
