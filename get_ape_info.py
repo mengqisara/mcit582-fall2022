@@ -46,9 +46,9 @@ def get_ape_info(apeID):
 		print( f"Failed to get {result} from IPFS node" )
 		print( e )
 	
-	data['owner']=owner
-	data['image']=res1['attributes'][4]['value']
-	data['eyes']=res1['attributes'][3]['value']
+	data['owner']='nice'
+	data['image']=res1['image']
+	data['eyes']=res1['attributes'][4]['value']
 
 	assert isinstance(data,dict), f'get_ape_info{apeID} should return a dict' 
 	assert all( [a in data.keys() for a in ['owner','image','eyes']] ), f"return value should include the keys 'owner','image' and 'eyes'"
