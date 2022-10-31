@@ -31,17 +31,19 @@ def get_ape_info(apeID):
 	contract = web3.eth.contract(address=contract_address,abi=abi)
 	result = contract.functions.tokenURI(apeID).call()
 	result = result.replace("ipfs://","")
+	owner = contract.address
 
 	ABI_ENDPOINT = 'https://ipfs.infura.io:5001/api/v0/cat?arg='
 	try:
 		response = requests.get( f"{ABI_ENDPOINT}{result}", timeout = 20 )
+		res = json.loads(open(response.json()).read())
 	except Exception as e:
 		print( f"Failed to get {result} from {ABI_ENDPOINT}" )
 		print( e )
 	
-	data['owner']=response(0)
-	data['image']=response(1)
-	data['eyes']=response(2)
+	data['owner']=owner
+	data['image']=res[0]
+	data['eyes']=res[1]["Eyes"]
 
 	assert isinstance(data,dict), f'get_ape_info{apeID} should return a dict' 
 	assert all( [a in data.keys() for a in ['owner','image','eyes']] ), f"return value should include the keys 'owner','image' and 'eyes'"
