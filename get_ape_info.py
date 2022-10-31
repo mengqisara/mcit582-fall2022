@@ -37,7 +37,7 @@ def get_ape_info(apeID):
 		response = requests.get( f"{ABI_ENDPOINT}{result}", timeout = 20 )
 	except Exception as e:
 		print( f"Failed to get {result} from {ABI_ENDPOINT}" )
-	        print( e )
+		print( e )
 
         print(type(respone))
 	
