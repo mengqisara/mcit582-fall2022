@@ -48,7 +48,7 @@ def get_ape_info(apeID):
 	
 	data['owner']=owner
 	data['image']=res1['image']
-	data['eyes']=res1['attributes'][4]['value']
+	data['eyes']=res1['attributes'][3]['value']
 
 	assert isinstance(data,dict), f'get_ape_info{apeID} should return a dict' 
 	assert all( [a in data.keys() for a in ['owner','image','eyes']] ), f"return value should include the keys 'owner','image' and 'eyes'"
