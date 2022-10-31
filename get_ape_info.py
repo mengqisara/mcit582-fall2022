@@ -17,7 +17,7 @@ with open('/home/codio/workspace/abi.json', 'r') as f:
 
 ############################
 #Connect to an Ethereum node
-api_url = 'https://ipfs.infura.io:5001/api/v0/cat?arg=QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq'
+api_url = f"https://mainnet.infura.io/v3/255d23fd3a1c45cda194d2f09486a53f"
 provider = HTTPProvider(api_url)
 web3 = Web3(provider)
 
@@ -28,12 +28,22 @@ def get_ape_info(apeID):
 	data = {'owner': "", 'image': "", 'eyes': "" }
 	
 	#YOUR CODE HERE	
+	contract = web3.eth.contract(address=contract_address,abi=abi)
+	result = contract.methods.tokenURI(apeID).call()
+	result = result.replace("ipfs://","")
+
+	ABI_ENDPOINT = 'https://ipfs.infura.io:5001/api/v0/cat?arg='
 	try:
-		response = requests.get( f"{api_url}{apeID}", timeout = 20 )
-		data = json.load(response.json())
+		response = requests.get( f"{ABI_ENDPOINT}{result}", timeout = 20 )
 	except Exception as e:
-		print( f"Failed to get {contract_address} from {api_url}" )
-		print( e )
+		print( f"Failed to get {result} from {ABI_ENDPOINT}" )
+	        print( e )
+
+        print(type(respone))
+	
+	data['owner'].append(response(0))
+	data['image'].append(response(1))
+	data['eyes'].append(response(2))
 
 	assert isinstance(data,dict), f'get_ape_info{apeID} should return a dict' 
 	assert all( [a in data.keys() for a in ['owner','image','eyes']] ), f"return value should include the keys 'owner','image' and 'eyes'"
