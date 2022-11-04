@@ -25,29 +25,29 @@ def provideLiquidity(tokenA_addr: address, tokenB_addr: address, tokenA_quantity
 	self.tokenB.address=tokenB_addr
 	self.tokenAQty = tokenA_quantity
 	self.tokenBQty = tokenB_quantity
-	self.transfer(tokenA_quantity)
-	self.transfer(tokenB_quantity)
+	self.transfer(self.owner,tokenA_quantity)
+	self.transfer(self.owner,tokenB_quantity)
 	assert self.invariant > 0
 
 @internal
-def tradeTokenAtoB(sell_quantity: uint256):
+def _tradeTokenAtoB(sell_quantity: uint256):
 	self.approve(self.tokenA.address,sell_quantity)
 	self.transferFrom(msg.sender,self.tokenA.address,sell_quantity)
 	new_total_tokenA: unit256 = self.tokenAQty+sell_quantity
 	new_total_tokenB: unit256 = self.invariant/new_total_tokenA
 	tokenB_to_send: unit256 = self.tokenBQty-new_total_tokenB
-	self.tokenB.address.transfer(msg.sender,tokenB_to_send)
+	self.tokenB.transfer(msg.sender,tokenB_to_send)
 	self.tokenAQty=new_total_tokenA
 	self.tokenBQty=new_total_tokenB
 
 @internal
-def tradeTokenBtoA(sell_quantity: uint256):
+def _tradeTokenBtoA(sell_quantity: uint256):
 	self.approve(self.tokenB.address,sell_quantity)
 	self.transferFrom(msg.sender,self.tokenB.address,sell_quantity)
 	new_total_tokenB: unit256 = self.tokenBQty+sell_quantity
 	new_total_tokenA: unit256 = self.invariant/new_total_tokenB
 	tokenA_to_send: unit256 = self.tokenAQty-new_total_tokenA
-	self.tokenA.address.transfer(msg.sender,tokenA_to_send)
+	self.tokenA.transfer(msg.sender,tokenA_to_send)
 	self.tokenAQty=new_total_tokenA
 	self.tokenBQty=new_total_tokenB
 # Trades one token for the other
@@ -56,16 +56,16 @@ def tradeTokens(sell_token: address, sell_quantity: uint256):
 	assert sell_token == self.tokenA.address or sell_token == self.tokenB.address
 	#Your code here
 	if(sell_token==self.tokenA.address):
-		tradeTokenAtoB(sell_quantity)
+		self._tradeTokenAtoB(sell_quantity)
 	else:
-		tradeTokenBtoA(sell_quantity)
+		self._tradeTokenBtoA(sell_quantity)
 
 # Owner can withdraw their funds and destroy the market maker
 @external
 def ownerWithdraw():
 	assert self.owner == msg.sender
-	self.tokenA.address.transfer(self.owner,self.tokenAQty)
-	self.tokenB.address.transfer(self.owner,self.tokenBQty)
+	self.tokenA.transfer(self.owner,self.tokenAQty)
+	self.tokenB.transfer(self.owner,self.tokenBQty)
 
 
 
