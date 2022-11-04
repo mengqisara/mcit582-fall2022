@@ -31,9 +31,9 @@ def provideLiquidity(tokenA_addr: address, tokenB_addr: address, tokenA_quantity
 def _tradeTokenAtoB(sell_quantity: uint256):
 	self.tokenA.approve(self.tokenA.address,sell_quantity)
 	self.tokenA.transferFrom(msg.sender,self.tokenA.address,sell_quantity)
-	new_total_tokenA: unit256 = self.tokenAQty+sell_quantity
-	new_total_tokenB: unit256 = self.invariant/new_total_tokenA
-	tokenB_to_send: unit256 = self.tokenBQty-new_total_tokenB
+	new_total_tokenA: uint256 = self.tokenAQty+sell_quantity
+	new_total_tokenB: uint256 = self.invariant/new_total_tokenA
+	tokenB_to_send: uint256 = self.tokenBQty-new_total_tokenB
 	self.tokenB.transfer(msg.sender,tokenB_to_send)
 	self.tokenAQty=new_total_tokenA
 	self.tokenBQty=new_total_tokenB
@@ -42,9 +42,9 @@ def _tradeTokenAtoB(sell_quantity: uint256):
 def _tradeTokenBtoA(sell_quantity: uint256):
 	self.tokenB.approve(self.tokenB.address,sell_quantity)
 	self.tokenB.transferFrom(msg.sender,self.tokenB.address,sell_quantity)
-	new_total_tokenB: unit256 = self.tokenBQty+sell_quantity
-	new_total_tokenA: unit256 = self.invariant/new_total_tokenB
-	tokenA_to_send: unit256 = self.tokenAQty-new_total_tokenA
+	new_total_tokenB: uint256 = self.tokenBQty+sell_quantity
+	new_total_tokenA: uint256 = self.invariant/new_total_tokenB
+	tokenA_to_send: uint256 = self.tokenAQty-new_total_tokenA
 	self.tokenA.transfer(msg.sender,tokenA_to_send)
 	self.tokenAQty=new_total_tokenA
 	self.tokenBQty=new_total_tokenB
