@@ -25,8 +25,8 @@ def provideLiquidity(tokenA_addr: address, tokenB_addr: address, tokenA_quantity
 	self.tokenB.address=tokenB_addr
 	self.tokenAQty = tokenA_quantity
 	self.tokenBQty = tokenB_quantity
-	send(tokenA.address,tokenA_quantity)
-	send(tokenB.address,tokenB_quantity)
+	send(self.tokenA.address,tokenA_quantity)
+	send(self.tokenB.address,tokenB_quantity)
 	assert self.invariant > 0
 
 @internal
