@@ -18,14 +18,11 @@ def verify():
     cont = json.loads(json.dumps(content))
     platform = cont['payload']['platform']
     print(platform)
-    console.log(platform)
     sign = cont['sig']
     print(sign)
-    console.log(sign)
     payload = cont['payload']
     msg = payload['message']
     print(msg)
-    console.log(msg)
     result: bool
     if(platform=='Ethereum'):
         eth_account.Account.enable_unaudited_hdwallet_features()
@@ -51,12 +48,9 @@ def verify():
         else:
             result = False
             print('Algo verify:False')
-            
+
 
     return jsonify(result)
 
 if __name__ == '__main__':
     app.run(port='5002')
-
-
-python3 .guides/mcit582-fall2022/verification_endpoint.py
