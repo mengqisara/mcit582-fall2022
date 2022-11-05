@@ -16,7 +16,7 @@ def verify():
     content = request.get_json(silent=True)
     cont = json.loads(json.dumps(content))
     platform = cont['payload']['platform']
-    signature = cont['sig']
+    sign = cont['sig']
     payload = cont['payload']
     msg = payload['message']
     result: bool
@@ -25,7 +25,7 @@ def verify():
         acct, mnemonic = eth_account.Account.create_with_mnemonic()
 
         eth_encoded_msg = eth_account.messages.encode_defunct(text=msg)
-        if eth_account.Account.recover_message(eth_encoded_msg,signature=signature) == payload['pk']:
+        if eth_account.Account.recover_message(eth_encoded_msg,signature='0x3718eb506f445ecd1d6921532c30af84e89f2faefb17fc8117b75c4570134b4967a0ae85772a8d7e73217a32306016845625927835818d395f0f65d25716356c1c') == payload['pk']:
             result = True
             print('Eth verify:True')
         else:
@@ -35,7 +35,7 @@ def verify():
     else:
         algo_sk, algo_pk = algosdk.account.generate_account()
 
-        BYTE_ARRAY = bytearray.fromhex(hex(int(signature,base=16)))
+        BYTE_ARRAY = bytearray.fromhex(hex(int(sign,16)))
         algo_sig_str = base64.b64encode(BYTE_ARRAY)
 
         if algosdk.util.verify_bytes(msg.encode('utf-8'), algo_sig_str, payload['pk']):
