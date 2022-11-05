@@ -16,9 +16,12 @@ def verify():
     content = request.get_json(silent=True)
     cont = json.loads(json.dumps(content))
     platform = cont['payload']['platform']
+    print(platform)
     sign = cont['sig']
+    print(sign)
     payload = cont['payload']
     msg = payload['message']
+    print(msg)
     result: bool
     if(platform=='Ethereum'):
         eth_account.Account.enable_unaudited_hdwallet_features()
