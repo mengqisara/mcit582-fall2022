@@ -35,7 +35,7 @@ def verify():
     else:
         algo_sk, algo_pk = algosdk.account.generate_account()
 
-        BYTE_ARRAY = bytearray.fromhex(signature)
+        BYTE_ARRAY = bytearray.fromhex(int(signature,base=16))
         algo_sig_str = base64.b64encode(BYTE_ARRAY)
 
         if algosdk.util.verify_bytes(msg.encode('utf-8'), algo_sig_str, payload['pk']):
