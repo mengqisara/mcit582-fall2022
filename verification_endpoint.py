@@ -5,6 +5,7 @@ from flask_restful import Api
 import json
 import eth_account
 import algosdk
+from hexbytes import HexBytes
 
 app = Flask(__name__)
 api = Api(app)
@@ -24,7 +25,7 @@ def verify():
         acct, mnemonic = eth_account.Account.create_with_mnemonic()
 
         eth_encoded_msg = eth_account.messages.encode_defunct(text=msg)
-        if eth_account.Account.recover_message(eth_encoded_msg,signature=signature.hex()) == payload['pk']:
+        if eth_account.Account.recover_message(eth_encoded_msg,signature=signature) == payload['pk']:
             result = True
             print('Eth verify:True')
         else:
@@ -34,7 +35,7 @@ def verify():
     else:
         algo_sk, algo_pk = algosdk.account.generate_account()
 
-        BYTE_ARRAY = bytearray.fromhex(signature.hex())
+        BYTE_ARRAY = bytearray.fromhex(signature)
         algo_sig_str = base64.b64encode(BYTE_ARRAY)
 
         if algosdk.util.verify_bytes(msg.encode('utf-8'), algo_sig_str, payload['pk']):
