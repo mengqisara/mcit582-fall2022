@@ -29,7 +29,7 @@ def verify():
         acct, mnemonic = eth_account.Account.create_with_mnemonic()
 
         eth_encoded_msg = eth_account.messages.encode_defunct(text=msg)
-        if eth_account.Account.recover_message(eth_encoded_msg,signature=signature) == payload['pk']:
+        if eth_account.Account.recover_message(eth_encoded_msg,signature=sign) == payload['pk']:
             result = True
             print('Eth verify:True')
         else:
