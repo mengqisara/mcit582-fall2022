@@ -15,7 +15,7 @@ app.url_map.strict_slashes = False
 @app.route('/verify', methods=['GET','POST'])
 def verify():
     content = request.get_json(silent=True)
-    cont = json.loads(json.dumps(content))
+    cont = json.dumps(content)
     platform = cont['payload']['platform']
     print(platform)
     sign = cont['sig']
@@ -57,5 +57,3 @@ def verify():
 
 if __name__ == '__main__':
     app.run(port='5002')
-
-
