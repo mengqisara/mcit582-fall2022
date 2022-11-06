@@ -24,32 +24,35 @@ def verify():
     msg = payload['message']
     print(msg)
     result: bool
-    if(platform=='Ethereum'):
-        eth_account.Account.enable_unaudited_hdwallet_features()
-        acct, mnemonic = eth_account.Account.create_with_mnemonic()
+    try:
+        if (platform == 'Ethereum'):
+            eth_account.Account.enable_unaudited_hdwallet_features()
+            acct, mnemonic = eth_account.Account.create_with_mnemonic()
 
-        eth_encoded_msg = eth_account.messages.encode_defunct(text=msg)
-        if eth_account.Account.recover_message(eth_encoded_msg,signature=sign) == payload['pk']:
-            result = True
-            print('Eth verify:True')
+            eth_encoded_msg = eth_account.messages.encode_defunct(text=msg)
+            if eth_account.Account.recover_message(eth_encoded_msg, signature=sign) == payload['pk']:
+                result = True
+                print('Eth verify:True')
+            else:
+                result = False
+                print('Eth verify:False')
+
         else:
-            result = False
-            print('Eth verify:False')
+            algo_sk, algo_pk = algosdk.account.generate_account()
 
-    else:
-        algo_sk, algo_pk = algosdk.account.generate_account()
+            # BYTE_ARRAY = bytearray.fromhex(int(sign,16))
+            # algo_sig_str = base64.b64encode(BYTE_ARRAY)
 
-        #BYTE_ARRAY = bytearray.fromhex(int(sign,16))
-        #algo_sig_str = base64.b64encode(BYTE_ARRAY)
-
-        if algosdk.util.verify_bytes(msg.encode('utf-8'), sign, payload['pk']):
-            result = True
-            print('Algo verify:True')
-        else:
-            result = False
-            print('Algo verify:False')
-
-
+            if algosdk.util.verify_bytes(msg.encode('utf-8'), sign, payload['pk']):
+                result = True
+                print('Algo verify:True')
+            else:
+                result = False
+                print('Algo verify:False')
+    except Exception as e:
+        import traceback
+        print(traceback.format_exc())
+        
     return jsonify(result)
 
 if __name__ == '__main__':
