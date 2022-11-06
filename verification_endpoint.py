@@ -21,7 +21,7 @@ def verify():
     sign = cont['sig']
     print(sign)
     payload = cont['payload']
-    msg = payload['message']
+    msg = json.dumps(payload)
     print(msg)
     result: bool
 
@@ -49,8 +49,9 @@ def verify():
         else:
             result = False
             print('Algo verify:False')
-        
+
     return jsonify(result)
 
 if __name__ == '__main__':
     app.run(port='5002')
+
