@@ -59,4 +59,3 @@ if __name__ == '__main__':
     app.run(port='5002')
 
 
-python3 .guides/mcit582-fall2022/verification_endpoint.py
