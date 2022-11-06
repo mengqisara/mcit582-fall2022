@@ -15,7 +15,7 @@ app.url_map.strict_slashes = False
 @app.route('/verify', methods=['GET','POST'])
 def verify():
     content = request.get_json(silent=True)
-    cont = json.dumps(content)
+    cont = json.loads(json.dumps(content))
     platform = cont['payload']['platform']
     print(platform)
     sign = cont['sig']
@@ -24,35 +24,32 @@ def verify():
     msg = payload['message']
     print(msg)
     result: bool
-    try:
-        if (platform == 'Ethereum'):
-            #eth_account.Account.enable_unaudited_hdwallet_features()
-            #acct, mnemonic = eth_account.Account.create_with_mnemonic()
 
-            eth_encoded_msg = eth_account.messages.encode_defunct(text=msg)
-            if eth_account.Account.recover_message(eth_encoded_msg, signature=sign) == payload['pk']:
-                result = True
-                print('Eth verify:True')
-            else:
-                result = False
-                print('Eth verify:False')
+    if (platform == 'Ethereum'):
+        # eth_account.Account.enable_unaudited_hdwallet_features()
+        # acct, mnemonic = eth_account.Account.create_with_mnemonic()
 
+        eth_encoded_msg = eth_account.messages.encode_defunct(text=msg)
+        if eth_account.Account.recover_message(eth_encoded_msg, signature=sign) == payload['pk']:
+            result = True
+            print('Eth verify:True')
         else:
-            #algo_sk, algo_pk = algosdk.account.generate_account()
+            result = False
+            print('Eth verify:False')
 
-            # BYTE_ARRAY = bytearray.fromhex(int(sign,16))
-            # algo_sig_str = base64.b64encode(BYTE_ARRAY)
+    else:
+        # algo_sk, algo_pk = algosdk.account.generate_account()
 
-            if algosdk.util.verify_bytes(msg.encode('utf-8'), sign, payload['pk']):
-                result = True
-                print('Algo verify:True')
-            else:
-                result = False
-                print('Algo verify:False')
-    except Exception as e:
-        import traceback
-        print(traceback.format_exc())
+        # BYTE_ARRAY = bytearray.fromhex(int(sign,16))
+        # algo_sig_str = base64.b64encode(BYTE_ARRAY)
 
+        if algosdk.util.verify_bytes(msg.encode('utf-8'), sign, payload['pk']):
+            result = True
+            print('Algo verify:True')
+        else:
+            result = False
+            print('Algo verify:False')
+        
     return jsonify(result)
 
 if __name__ == '__main__':
