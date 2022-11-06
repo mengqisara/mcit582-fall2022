@@ -39,10 +39,10 @@ def verify():
     else:
         algo_sk, algo_pk = algosdk.account.generate_account()
 
-        BYTE_ARRAY = bytearray.fromhex(sign)
-        algo_sig_str = base64.b64encode(BYTE_ARRAY)
+        #BYTE_ARRAY = bytearray.fromhex(int(sign,16))
+        #algo_sig_str = base64.b64encode(BYTE_ARRAY)
 
-        if algosdk.util.verify_bytes(msg.encode('utf-8'), algo_sig_str, payload['pk']):
+        if algosdk.util.verify_bytes(msg.encode('utf-8'), sign, payload['pk']):
             result = True
             print('Algo verify:True')
         else:
