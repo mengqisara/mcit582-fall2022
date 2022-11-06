@@ -26,8 +26,8 @@ def verify():
     result: bool
     try:
         if (platform == 'Ethereum'):
-            eth_account.Account.enable_unaudited_hdwallet_features()
-            acct, mnemonic = eth_account.Account.create_with_mnemonic()
+            #eth_account.Account.enable_unaudited_hdwallet_features()
+            #acct, mnemonic = eth_account.Account.create_with_mnemonic()
 
             eth_encoded_msg = eth_account.messages.encode_defunct(text=msg)
             if eth_account.Account.recover_message(eth_encoded_msg, signature=sign) == payload['pk']:
@@ -38,7 +38,7 @@ def verify():
                 print('Eth verify:False')
 
         else:
-            algo_sk, algo_pk = algosdk.account.generate_account()
+            #algo_sk, algo_pk = algosdk.account.generate_account()
 
             # BYTE_ARRAY = bytearray.fromhex(int(sign,16))
             # algo_sig_str = base64.b64encode(BYTE_ARRAY)
@@ -52,8 +52,11 @@ def verify():
     except Exception as e:
         import traceback
         print(traceback.format_exc())
-        
+
     return jsonify(result)
 
 if __name__ == '__main__':
     app.run(port='5002')
+
+
+python3 .guides/mcit582-fall2022/verification_endpoint.py
