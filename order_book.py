@@ -1,9 +1,10 @@
 import math
+from random import random
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
-import random
+
 from models import Base, Order
 
 engine = create_engine('sqlite:///orders.db')
@@ -21,10 +22,7 @@ other_platform = platforms[1-platforms.index(platform)]
 def insert_order(order):
     fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount']
     order_res = Order(**{f: order[f] for f in fields})
-    order_res['tx_id'] = ''
-    if 'creator_id' in order:
-        order_res.creator_id = order['creator_id']
-    order_res.timestamp = datetime.now()
+
     session.add(order_res)
     session.commit()
     return order_res
