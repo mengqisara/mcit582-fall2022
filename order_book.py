@@ -34,7 +34,7 @@ def match_order(order):
     orders = session.query(Order).filter(Order.filled == None, Order.buy_currency == order.sell_currency,
                                            Order.sell_currency == order.buy_currency).all()
     for o in orders:
-        if order.buy_amount / order.sell_amount < o.sell_amount / o.buy_amount and o.sell_amount / o.buy_amount - order_rate > max_profit:
+        if order.buy_amount / order.sell_amount < o.sell_amount / o.buy_amount and o.sell_amount / o.buy_amount - order.buy_amount / order.sell_amount > max_profit:
             max_profit = o.sell_amount / o.buy_amount - order.buy_amount / order.sell_amount
 
             matched_order = o
@@ -82,7 +82,6 @@ def fill_order(order_res):
 def process_order(order):
     #Your code here
     order_res = insert_order(order)
-    matched_order=match_order(order)
     fill_order(order_res)
     pass
 
