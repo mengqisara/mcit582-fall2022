@@ -65,14 +65,29 @@ def fill_order(order_res):
         order_res.counterparty_id = matched_ord.id
         session.commit()
 
-
         if order_res.buy_amount > matched_ord.sell_amount:
             buy_amount = order_res.buy_amount - matched_ord.sell_amount
             child_ord = create_child(order_res, buy_amount, math.ceil(buy_amount*order_res.sell_amount / order_res.buy_amount))
+            child_list = []
+            if order_res.child == None:
+                child_list.append(child_ord)
+                order_res.child = child_list
+            elif order_res.child != None:
+                child_list = order_res.child
+                child_list.append(child_ord)
+                order_res.child = child_list
             fill_order(child_ord)
-        if matched_ord.buy_amount > order_res.sell_amount:  # create child order for match order
+        if matched_ord.buy_amount > order_res.sell_amount:
             buy_amount = matched_ord.buy_amount - order_res.sell_amount
             child_ord = create_child(matched_ord, buy_amount, math.ceil(buy_amount / (matched_ord.buy_amount / matched_ord.sell_amount)))
+            child_list = []
+            if matched_ord.child == None:
+                child_list.append(child_ord)
+                matched_ord.child = child_list
+            elif matched_ord.child != None:
+                child_list = matched_ord.child
+                child_list.append(child_ord)
+                matched_ord.child = child_list
             fill_order(child_ord)
 
     session.commit()
