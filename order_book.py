@@ -51,9 +51,9 @@ def create_child(order_obj, buy_amount, sell_amount):
     child_order['sell_amount'] = sell_amount
     child_order['creator_id'] = order_obj.id
     child_order['tx_id'] = order_obj.tx_id
-    insert_order(child_order)
+    child_order_res=insert_order(child_order)
     session.commit()
-    return child_order
+    return child_order_res
 
 def fill_order(order_res):
     matched_ord = match_order(order_res)
