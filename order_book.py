@@ -19,8 +19,9 @@ receiver_pk = hex(random.randint(0,2**256))[2:] #Generate random string that loo
 other_platform = platforms[1-platforms.index(platform)]
 
 def insert_order(order):
-    fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount', 'tx_id']
+    fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount']
     order_res = Order(**{f: order[f] for f in fields})
+    order_res['tx_id'] = ''
     if 'creator_id' in order:
         order_res.creator_id = order['creator_id']
     order_res.timestamp = datetime.now()
