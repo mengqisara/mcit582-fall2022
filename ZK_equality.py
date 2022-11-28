@@ -1,5 +1,6 @@
 from zksk import Secret, DLRep
 from zksk import utils
+import zksk
 
 def ZK_equality(G,H):
 
@@ -8,9 +9,9 @@ def ZK_equality(G,H):
     r_d = Secret()
     m = Secret()
     C1 = r_c*G
-    C2 = m * G + r_c.value * H
+    C2 = m * G + r_c * H
     D1 = r_d*G
-    D2 = m * G + r_d.value * H
+    D2 = m * G + r_d * H
 
     #Generate a NIZK proving equality of the plaintexts
     stmt = DLRep(C1,r_c*G) & DLRep(C2,r_c*H+m*G) & DLRep(D1,r_d*G) & DLRep(D2,r_d*H+m*G)
