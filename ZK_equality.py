@@ -8,7 +8,7 @@ def ZK_equality(G,H):
     #Generate two El-Gamal ciphertexts (C1,C2) and (D1,D2)
     r_c = Secret()
     r_d = Secret()
-    m = random.randint(0, 1)
+    m = Secret(Bn(42))
     C1 = r_c*G
     C2 = m * G + r_c * H
     D1 = r_d*G
