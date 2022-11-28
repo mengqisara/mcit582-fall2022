@@ -2,6 +2,7 @@ from zksk import Secret, DLRep
 from zksk import utils
 import zksk
 import random
+from petlib.bn import Bn
 
 def ZK_equality(G,H):
 
