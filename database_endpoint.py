@@ -36,6 +36,7 @@ def shutdown_session(response_or_exc):
 """
 -------- Helper methods (feel free to add your own!) -------
 """
+
 def check_signature(payload,sig):
     sender_pk = payload['sender_pk']
     if payload.get('platform') == 'Ethereum':
@@ -43,7 +44,7 @@ def check_signature(payload,sig):
         return eth_account.Account.recover_message(encoded_msg, signature=sig) == sender_pk
     else:
         return algosdk.util.verify_bytes(json.dumps(payload).encode('utf-8'), sig, sender_pk)
-    
+
 def obj_to_dict(order):
     res_dict = {}
     res_dict['sender_pk'] = order.sender_pk
@@ -52,10 +53,8 @@ def obj_to_dict(order):
     res_dict['sell_currency'] = order.sell_currency
     res_dict['buy_amount'] = order.buy_amount
     res_dict['sell_amount'] = order.sell_amount
-    res_dict['tx_id'] = order.tx_id
     res_dict['signature'] = order.signature
     return res_dict
-
 
 def log_message(d):
     # Takes input dictionary d and writes it to the Log table
@@ -65,7 +64,6 @@ def log_message(d):
 """
 ---------------- Endpoints ----------------
 """
-
 
 
 @app.route('/trade', methods=['POST'])
@@ -105,16 +103,9 @@ def trade():
                                   sell_currency=payload['sell_currency'],
                                   buy_amount=payload['buy_amount'],
                                   sell_amount=payload['sell_amount'],
-                                  signature=content['sig'],
-                                  tx_id=payload['tx_id'])
+                                  signature=content['sig'])
                 g.session.add(order_obj)
                 g.session.commit()
-                try:
-                    tx = g.w3.eth.get_transaction(payload['tx_id'])
-                except:
-                    print(traceback.format_exc())
-                    print("Tx not found")
-                    return jsonify(False)
 
             else:
                 log_message(json.dumps(content['payload']))
@@ -128,8 +119,7 @@ def trade():
                                   sell_currency=payload['sell_currency'],
                                   buy_amount=payload['buy_amount'],
                                   sell_amount=payload['sell_amount'],
-                                  signature=content['sig'],
-                                  tx_id=payload['tx_id'])
+                                  signature=content['sig'])
                 g.session.add(order_obj)
                 g.session.commit()
 
@@ -144,7 +134,7 @@ def trade():
 def order_book():
     # Your code here
     # Note that you can access the database session using g.session
-    fields = ["buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id", "receiver_pk"]
+    fields = ["sender_pk", "receiver_pk", "buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature"]
 
     order_dict = {'data':[]}
     orders = g.session.query(Order)
