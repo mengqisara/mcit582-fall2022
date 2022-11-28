@@ -36,9 +36,28 @@ def shutdown_session(response_or_exc):
 """
 -------- Helper methods (feel free to add your own!) -------
 """
+def check_signature(payload,sig):
+    sender_pk = payload['sender_pk']
+    if payload.get('platform') == 'Ethereum':
+        encoded_msg = eth_account.messages.encode_defunct(text=json.dumps(payload))
+        return eth_account.Account.recover_message(encoded_msg, signature=sig) == sender_pk
+    else:
+        return algosdk.util.verify_bytes(json.dumps(payload).encode('utf-8'), sig, sender_pk)
+    
+def obj_to_dict(order):
+    res_dict = {}
+    res_dict['sender_pk'] = order.sender_pk
+    res_dict['receiver_pk'] = order.receiver_pk
+    res_dict['buy_currency'] = order.buy_currency
+    res_dict['sell_currency'] = order.sell_currency
+    res_dict['buy_amount'] = order.buy_amount
+    res_dict['sell_amount'] = order.sell_amount
+    res_dict['tx_id'] = order.tx_id
+    res_dict['signature'] = order.signature
+    return res_dict
 
 
-def log_message(d)
+def log_message(d):
     # Takes input dictionary d and writes it to the Log table
     pass
 
@@ -47,13 +66,7 @@ def log_message(d)
 ---------------- Endpoints ----------------
 """
 
-def check_signature(payload,sig):
-    sender_pk = payload['sender_pk']
-    if payload.get('platform') == 'Ethereum':
-        encoded_msg = eth_account.messages.encode_defunct(text=json.dumps(payload))
-        return eth_account.Account.recover_message(encoded_msg, signature=sig) == sender_pk
-    else:
-        return algosdk.util.verify_bytes(json.dumps(payload).encode('utf-8'), sig, sender_pk)
+
 
 @app.route('/trade', methods=['POST'])
 def trade():
@@ -139,17 +152,7 @@ def order_book():
         order_dict['data'].append(obj_to_dict(order))
     return jsonify(order_dict)
 
-def obj_to_dict(order):
-    res_dict = {}
-    res_dict['sender_pk'] = order.sender_pk
-    res_dict['receiver_pk'] = order.receiver_pk
-    res_dict['buy_currency'] = order.buy_currency
-    res_dict['sell_currency'] = order.sell_currency
-    res_dict['buy_amount'] = order.buy_amount
-    res_dict['sell_amount'] = order.sell_amount
-    res_dict['tx_id'] = order.tx_id
-    res_dict['signature'] = order.signature
-    return res_dict
+
 
 
 if __name__ == '__main__':
