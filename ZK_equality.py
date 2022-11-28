@@ -9,10 +9,10 @@ def ZK_equality(G,H):
     #Generate two El-Gamal ciphertexts (C1,C2) and (D1,D2)
     r1 = Secret()
     r2 = Secret()
-    m = Secret(Bn(42))
-    C1 = r1*G
+    m = Secret()
+    C1 = r1.value*G
     C2 = r1 * H + m * G 
-    D1 = r2*G
+    D1 = r2.value*G
     D2 = r2 * H + m * G
 
     #Generate a NIZK proving equality of the plaintexts
