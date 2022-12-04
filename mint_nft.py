@@ -1,7 +1,7 @@
 from web3 import Web3
 from vyper import compile_code, compile_codes
 from os import path
-from vyper import ERC721
+from ERC721 import*
 
 import requests
 import json
@@ -78,4 +78,4 @@ def mint_nft(nft_contract, tokenId, metadata, owner_address, minter_address):
 # Step 2:Call "mint" on the contract, set tokenURI to be "ipfs://{CID}" where CID was obtained from step 1
     tokenURI = "ipfs://{cid}"
    #obj = ERC721(nft_contract.name,nft_contract.symbol)
-    ERC721.mint(owner_address, tokenId, tokenURI)
+    mint(owner_address, tokenId, tokenURI)
