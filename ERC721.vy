@@ -50,8 +50,8 @@ event ApprovalForAll:
     operator: indexed(address)
     approved: bool
 
-name: constant(bytes32)
-symbol: constant(bytes32)
+name: constant(bytes32) = ''
+symbol: constant(bytes32) = ''
 idToURI: HashMap[uint256, bytes32]
 
 # @dev Mapping from NFT ID to the address that owns it.
@@ -89,6 +89,7 @@ def __init__(_name: byte32, _symbol: byte32):
     self.minter = msg.sender
     self.name = _name
     self.symbol = _symbol
+    self.IdToURI = dict()
 
 
 @view
