@@ -87,8 +87,8 @@ def __init__(name: String[32], symbol: String[32]):
     self.supportedInterfaces[ERC165_INTERFACE_ID] = True
     self.supportedInterfaces[ERC721_INTERFACE_ID] = True
     self.minter = msg.sender
-    self.name = _name
-    self.symbol = _symbol
+    self.name = name
+    self.symbol = symbol
 
 
 @view
