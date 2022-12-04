@@ -52,7 +52,7 @@ event ApprovalForAll:
 
 name: public(String[32])
 symbol: public(String[32])
-idToURI: HashMap[uint256, String[32]] = HahMap()
+idToURI: HashMap[uint256, String[32]]
 
 # @dev Mapping from NFT ID to the address that owns it.
 idToOwner: HashMap[uint256, address]
@@ -344,7 +344,7 @@ def mint(_to: address, _tokenId: uint256, tokenURI: String[32] ) -> bool:
     assert _to != ZERO_ADDRESS
     # Add NFT. Throws if `_tokenId` is owned by someone
     self._addTokenTo(_to, _tokenId)
-    self.idToURI[_tokenId] = tokenURI
+    idToURI[_tokenId] = tokenURI
     log Transfer(ZERO_ADDRESS, _to, _tokenId)
     return True
 
