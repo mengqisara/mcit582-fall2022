@@ -52,7 +52,7 @@ event ApprovalForAll:
 
 name: public(String[32])
 symbol: public(String[32])
-idToURI: HashMap[uint256, String[32]]
+idToURI: HashMap[uint256, String[32]] = HahMap()
 
 # @dev Mapping from NFT ID to the address that owns it.
 idToOwner: HashMap[uint256, address]
