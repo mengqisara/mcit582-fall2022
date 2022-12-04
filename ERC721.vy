@@ -50,8 +50,8 @@ event ApprovalForAll:
     operator: indexed(address)
     approved: bool
 
-name: String[32] = "name"
-symbol: String[32] = "symbol"
+name: String[32]
+symbol: String[32]
 idToURI: HashMap[uint256, String[32]]
 
 # @dev Mapping from NFT ID to the address that owns it.
