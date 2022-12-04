@@ -89,7 +89,7 @@ def __init__(_name: String[32], _symbol: String[32]):
     self.minter = msg.sender
     self.name = _name
     self.symbol = _symbol
-    self.IdToURI = dict()
+    self.idToURI = dict()
 
 
 @view
