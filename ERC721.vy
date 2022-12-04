@@ -52,7 +52,7 @@ event ApprovalForAll:
 
 name: public(bytes32)
 symbol: public(bytes32)
-idToURI：public(HashMap[unit256, bytes32])
+idToURI：public(HashMap[uint256, bytes32])
 
 # @dev Mapping from NFT ID to the address that owns it.
 idToOwner: HashMap[uint256, address]
