@@ -50,9 +50,9 @@ event ApprovalForAll:
     operator: indexed(address)
     approved: bool
 
-name: public(bytes32)
-symbol: public(bytes32)
-idToURI：public(HashMap[uint256, bytes32])
+name: constant(bytes32)
+symbol: constant(bytes32)
+idToURI：HashMap[uint256, bytes32]
 
 # @dev Mapping from NFT ID to the address that owns it.
 idToOwner: HashMap[uint256, address]
