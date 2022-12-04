@@ -1,7 +1,6 @@
 from web3 import Web3
 from vyper import compile_code, compile_codes
 from os import path
-import ERC721
 
 import requests
 import json
