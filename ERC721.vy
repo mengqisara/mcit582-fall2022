@@ -80,15 +80,15 @@ ERC721_INTERFACE_ID: constant(bytes32) = 0x0000000000000000000000000000000000000
 
 
 @external
-def __init__(name: String[32], symbol: String[32]):
+def __init__(_name: String[32], _symbol: String[32]):
     """
     @dev Contract constructor.
     """
     self.supportedInterfaces[ERC165_INTERFACE_ID] = True
     self.supportedInterfaces[ERC721_INTERFACE_ID] = True
     self.minter = msg.sender
-    self.name = name
-    self.symbol = symbol
+    self.name = _name
+    self.symbol = _symbol
 
 
 @view
