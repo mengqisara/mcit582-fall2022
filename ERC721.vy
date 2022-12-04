@@ -80,7 +80,7 @@ ERC721_INTERFACE_ID: constant(bytes32) = 0x0000000000000000000000000000000000000
 
 
 @external
-def __init__(_name: bytes32, _symbol: bytes32):
+def __init__(_name: String[32], _symbol: String[32]):
     """
     @dev Contract constructor.
     """
