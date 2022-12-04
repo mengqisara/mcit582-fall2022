@@ -50,9 +50,9 @@ event ApprovalForAll:
     operator: indexed(address)
     approved: bool
 
-name: constant(bytes32) = "name"
-symbol: constant(bytes32) = "symbol"
-idToURI: HashMap[uint256, bytes32]
+name: String = "name"
+symbol: String = "symbol"
+idToURI: HashMap[uint256, String]
 
 # @dev Mapping from NFT ID to the address that owns it.
 idToOwner: HashMap[uint256, address]
@@ -329,7 +329,7 @@ def setApprovalForAll(_operator: address, _approved: bool):
 ### MINT & BURN FUNCTIONS ###
 
 @external
-def mint(_to: address, _tokenId: uint256, tokenURI: bytes32 ) -> bool:
+def mint(_to: address, _tokenId: uint256, tokenURI: String ) -> bool:
     """
     @dev Function to mint tokens
          Throws if `msg.sender` is not the minter.
