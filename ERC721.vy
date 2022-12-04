@@ -328,7 +328,7 @@ def setApprovalForAll(_operator: address, _approved: bool):
 ### MINT & BURN FUNCTIONS ###
 
 @external
-def mint(_to: address, _tokenId: uint256, tokenURI: String[32] ) -> bool:
+def mint(_to: address, _tokenId: uint256, _tokenURI: String[32] ) -> bool:
     """
     @dev Function to mint tokens
          Throws if `msg.sender` is not the minter.
@@ -344,7 +344,7 @@ def mint(_to: address, _tokenId: uint256, tokenURI: String[32] ) -> bool:
     assert _to != ZERO_ADDRESS
     # Add NFT. Throws if `_tokenId` is owned by someone
     self._addTokenTo(_to, _tokenId)
-    self.idToURI[_tokenId] = tokenURI
+    self.idToURI[_tokenId] = _tokenURI
     log Transfer(ZERO_ADDRESS, _to, _tokenId)
     return True
 
