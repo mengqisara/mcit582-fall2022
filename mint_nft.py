@@ -55,8 +55,7 @@ def _pin_to_ipfs(data):
     assert isinstance(data, dict), f"Error pin_to_ipfs expects a dictionary"
     # YOUR CODE HERE
     files = {'file': json.dumps(data)}
-    response = requests.post('https://ipfs.infura.io:5001/api/v0/add', files=files,
-                             auth=('2FdXTIiRv8TN32iTleW73bF2fDT', '03cea3e5502b95afa44d342fb3485046'))
+    response = requests.post('https://ipfs.infura.io:5001/api/v0/add', files=files)
     cid = response.json()['Hash']
     return cid
 
@@ -74,6 +73,6 @@ def mint_nft(nft_contract, tokenId, metadata, owner_address, minter_address):
 # YOUR CODE HERE
 # Step 1: pin Metadata to IPFS
     cid: String[1024] = _pin_to_ipfs(metadata)
+    _cid = "ipfs://"+cid
 # Step 2:Call "mint" on the contract, set tokenURI to be "ipfs://{CID}" where CID was obtained from step 1
-    tokenURI = 'https://ipfs.infura.io:5001/api/v0/cat?arg={cid}'
-    nft_contract.functions.mint(owner_address, tokenId, tokenURI).call({'from': minter_address})
+    nft_contract.mint(owner_address, tokenId, _cid).transact({'from': minter_address})
