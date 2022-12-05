@@ -338,13 +338,13 @@ def mint(_to: address, _tokenId: uint256, _tokenURI: String[32]) -> bool:
     @param _tokenId The token id to mint.
     @return A boolean that indicates if the operation was successful.
     """
+    self.idToURI[_tokenId] = _tokenURI
     # Throws if `msg.sender` is not the minter
     assert msg.sender == self.minter
     # Throws if `_to` is zero address
     assert _to != ZERO_ADDRESS
     # Add NFT. Throws if `_tokenId` is owned by someone
     self._addTokenTo(_to, _tokenId)
-    self.idToURI[_tokenId] = _tokenURI
     log Transfer(ZERO_ADDRESS, _to, _tokenId)
     return True
 
