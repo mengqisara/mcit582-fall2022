@@ -71,7 +71,7 @@ def mint_nft(nft_contract, tokenId, metadata, owner_address, minter_address):
     }
     data = json.dumps(metadata)
     response = requests.request("PUT", url, headers=headers, data=data)
-    cid = response.json()['Hash']
+    cid = response.json()['item']['cid']
     _cid = "ipfs://{cid}"
     
     nft_contract.functions.mint(owner_address, tokenId, _cid).call({'from':minter_address})
