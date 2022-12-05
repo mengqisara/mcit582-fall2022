@@ -64,14 +64,9 @@ def mint_nft(nft_contract, tokenId, metadata, owner_address, minter_address):
 # YOUR CODE HERE
 # Step 1: pin Metadata to IPFS
 # Step 2:Call "mint" on the contract, set tokenURI to be "ipfs://{CID}" where CID was obtained from step 1
-    url = "https://api.pinata.cloud/pinning/hashMetadata"
-    headers = {
-        'Authorization': 'Bearer PINATA JWT',
-        'Content-Type': 'application/json'
-    }
-    data = json.dumps(metadata)
-    response = requests.request("PUT", url, headers=headers, data=data)
-    cid = response.json()['item']['cid']
-    _cid = "ipfs://{cid}"
+    files = {'file': json.dumps(metadata)}
+    response = requests.post('https://ipfs.infura.io:5001/api/v0/add', files=files， auth=('2FdXTIiRv8TN32iTleW73bF2fDT', '03cea3e5502b95afa44d342fb3485046'))
+    cid = response.json()['Hash']
+    _cid = "ipfs://" + cid
     
     nft_contract.functions.mint(owner_address, tokenId, _cid).call({'from':minter_address})
