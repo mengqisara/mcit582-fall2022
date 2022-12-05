@@ -75,5 +75,5 @@ def mint_nft(nft_contract, tokenId, metadata, owner_address, minter_address):
 # Step 1: pin Metadata to IPFS
     cid = _pin_to_ipfs(metadata)
 # Step 2:Call "mint" on the contract, set tokenURI to be "ipfs://{CID}" where CID was obtained from step 1
-    tokenURI2 = "ipfs://{cid}"
+    tokenURI2 = "ipfs://"
     nft_contract.functions.mint(owner_address, tokenId, tokenURI2).call({'from': minter_address})
