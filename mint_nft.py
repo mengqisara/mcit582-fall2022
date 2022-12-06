@@ -68,4 +68,4 @@ def mint_nft(nft_contract, tokenId, metadata, owner_address, minter_address):
     cid = response.json()['Hash']
     _cid = "ipfs://"+cid
     
-    nft_contract.mint(owner_address, tokenId, _cid).transact({'from':minter_address})
+    nft_contract.functions.mint(owner_address, tokenId, _cid).call({'from':minter_address})
