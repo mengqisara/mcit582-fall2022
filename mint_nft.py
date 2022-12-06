@@ -66,4 +66,4 @@ def mint_nft(nft_contract,tokenId,metadata,owner_address,minter_address):
     response = requests.post('https://ipfs.infura.io:5001/api/v0/add', files=files)
     cid = response.json()['Hash']
     _cid = "ipfs://" + cid
-    nft_contract.mint(owner_address, tokenId, _cid).transact({'from':minter_address})
+    nft_contract.functions.mint(owner_address, tokenId, _cid).call({'from':minter_address})
