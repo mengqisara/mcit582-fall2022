@@ -12,7 +12,6 @@ import json
 # w3.eth.accounts[1]
 # etc
 w3 = Web3(Web3.EthereumTesterProvider())
-contract_file_path = "/blob/main/ERC721.vy"
 
 def deploy_nft(contract_file, name, symbol, minter_address):
     """
