@@ -10,16 +10,13 @@ from vyper.interfaces import ERC721
 implements: ERC721
 
 # Interface for the contract called by safeTransferFrom()
-interface
-ERC721Receiver:
-
-
-def onERC721Received(
-        _operator: address,
-        _from: address,
-        _tokenId: uint256,
-        _data: Bytes[1024]
-) -> bytes32: view
+interface ERC721Receiver:
+    def onERC721Received(
+            _operator: address,
+            _from: address,
+            _tokenId: uint256,
+            _data: Bytes[1024]
+        ) -> bytes32: view
 
 
 # @dev Emits when ownership of any NFT changes by any mechanism. This event emits when NFTs are
