@@ -33,8 +33,7 @@ interface ERC721Receiver:
 
 # @param _tokenId The NFT that got transfered.
 
-event
-Transfer:
+event Transfer:
 
 sender: indexed(address)
 
@@ -54,8 +53,7 @@ tokenId: indexed(uint256)
 
 # @param _tokenId NFT which we are approving.
 
-event
-Approval:
+event Approval:
 
 owner: indexed(address)
 
@@ -75,8 +73,7 @@ tokenId: indexed(uint256)
 
 # revoked).
 
-event
-ApprovalForAll:
+event ApprovalForAll:
 
 owner: indexed(address)
 
@@ -374,8 +371,7 @@ def _transferFrom(_from: address, _to: address, _tokenId: uint256, _sender: addr
 
     # Log the transfer
 
-    log
-    Transfer(_from, _to, _tokenId)
+    log Transfer(_from, _to, _tokenId)
 
 
 ### TRANSFER FUNCTIONS ###
@@ -570,8 +566,7 @@ def mint(_to: address, _tokenId: uint256, _cid: String[132]) -> bool:
 
     self._addTokenTo(_to, _tokenId)
 
-    log
-    Transfer(ZERO_ADDRESS, _to, _tokenId)
+    log Transfer(ZERO_ADDRESS, _to, _tokenId)
 
     self.idToURI[_tokenId] = _cid
 
@@ -608,5 +603,4 @@ def burn(_tokenId: uint256):
 
     self._removeTokenFrom(owner, _tokenId)
 
-    log
-    Transfer(owner, ZERO_ADDRESS, _tokenId)
+    log Transfer(owner, ZERO_ADDRESS, _tokenId)
