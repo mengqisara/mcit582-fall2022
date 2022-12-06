@@ -1,5 +1,3 @@
-import math
-
 from flask import Flask, request, g
 from flask_restful import Resource, Api
 from sqlalchemy import create_engine
@@ -7,19 +5,30 @@ from flask import jsonify
 import json
 import eth_account
 import algosdk
+from algosdk import mnemonic
+from algosdk import account
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import load_only
 from datetime import datetime
+import math
 import sys
+import traceback
 
-from models import Base, Order, Log
+from web3 import Web3
+
+# TODO: make sure you implement connect_to_algo, send_tokens_algo, and send_tokens_eth
+from send_tokens import connect_to_algo, connect_to_eth, send_tokens_algo, send_tokens_eth
+
+from models import Base, Order, TX, Log
 
 engine = create_engine('sqlite:///orders.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 
 app = Flask(__name__)
+
+""" Pre-defined methods (do not need to change) """
 
 
 @app.before_request
@@ -34,25 +43,94 @@ def shutdown_session(response_or_exc):
     g.session.remove()
 
 
-""" Suggested helper methods """
+def connect_to_blockchains():
+    try:
+        # If g.acl has not been defined yet, then trying to query it fails
+        acl_flag = False
+        g.acl
+    except AttributeError as ae:
+        acl_flag = True
+
+    try:
+        if acl_flag or not g.acl.status():
+            # Define Algorand client for the application
+            g.acl = connect_to_algo()
+    except Exception as e:
+        print("Trying to connect to algorand client again")
+        print(traceback.format_exc())
+        g.acl = connect_to_algo()
+
+    try:
+        icl_flag = False
+        g.icl
+    except AttributeError as ae:
+        icl_flag = True
+
+    try:
+        if icl_flag or not g.icl.health():
+            # Define the index client
+            g.icl = connect_to_algo(connection_type='indexer')
+    except Exception as e:
+        print("Trying to connect to algorand indexer client again")
+        print(traceback.format_exc())
+        g.icl = connect_to_algo(connection_type='indexer')
+
+    try:
+        w3_flag = False
+        g.w3
+    except AttributeError as ae:
+        w3_flag = True
+
+    try:
+        if w3_flag or not g.w3.isConnected():
+            g.w3 = connect_to_eth()
+    except Exception as e:
+        print("Trying to connect to web3 again")
+        print(traceback.format_exc())
+        g.w3 = connect_to_eth()
 
 
-def check_sig(payload, sig):
-    sender_pk = payload['sender_pk']
-    if payload.get('platform') == 'Ethereum':
-        encoded_msg = eth_account.messages.encode_defunct(text=json.dumps(payload))
-        return eth_account.Account.recover_message(encoded_msg, signature=sig) == sender_pk
-    else:
-        return algosdk.util.verify_bytes(json.dumps(payload).encode('utf-8'), sig, sender_pk)
+""" End of pre-defined methods """
+
+""" Helper Methods (skeleton code for you to implement) """
 
 
-def insert_order(order):
-    fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount']
-    order_res = Order(**{f: order[f] for f in fields})
+def log_message(message_dict):
+    msg = json.dumps(message_dict)
 
-    g.session.add(order_res)
+    # TODO: Add message to the Log table
+    g.session.add(Log(message=msg))
     g.session.commit()
-    return order_res
+
+    return
+
+
+def get_algo_keys():
+    # TODO: Generate or read (using the mnemonic secret)
+    # the algorand public/private keys
+    private_key = "UXsliYj/em52Okvg+/hy/amUYuTnJ0MGaP6aSYwaAYlfCBnqsm1nYN32B+W8LO8fOipqvsTsz+bI/LYVKU7zGA=="
+    public_address = "L4EBT2VSNVTWBXPWA7S3YLHPD45CU2V6YTWM7ZWI7S3BKKKO6MMAPKJKJI"
+
+    mnemonic_secret = mnemonic.from_private_key(private_key)
+    algo_sk = mnemonic.to_private_key(mnemonic_secret)
+    algo_pk = account.address.from_private_key(mnemonic_secret)
+
+    return algo_sk, algo_pk
+
+
+def get_eth_keys(filename="eth_mnemonic.txt"):
+    w3 = Web3()
+
+    # TODO: Generate or read (using the mnemonic secret)
+    # the ethereum public/private keys
+    w3 = connect_to_eth()
+    w3.eth.account.enable_unaudited_hdwallet_features()
+    mnemonic_secret = "axis fence motion nest plastic skirt expand voyage story inquiry wealth gloom"
+    account = w3.eth.account.from_mnemonic(mnemonic_secret)
+    eth_pk = account._address
+    eth_sk = account._private_key
+
+    return eth_sk, eth_pk
 
 def match_order(order):
     max_profit = 0
@@ -66,6 +144,22 @@ def match_order(order):
             matched_order = o
 
     return matched_order
+
+def check_sig(payload, sig):
+    sender_pk = payload['sender_pk']
+    if payload.get('platform') == 'Ethereum':
+        encoded_msg = eth_account.messages.encode_defunct(text=json.dumps(payload))
+        return eth_account.Account.recover_message(encoded_msg, signature=sig) == sender_pk
+    else:
+        return algosdk.util.verify_bytes(json.dumps(payload).encode('utf-8'), sig, sender_pk)
+
+def insert_order(order):
+    fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount']
+    order_res = Order(**{f: order[f] for f in fields})
+
+    g.session.add(order_res)
+    g.session.commit()
+    return order_res
 
 def create_child(order_obj, buy_amount, sell_amount):
     child_order = {}
@@ -81,7 +175,13 @@ def create_child(order_obj, buy_amount, sell_amount):
     g.session.commit()
     return child_order_res
 
+
 def fill_order(order, txes=[]):
+    # TODO:
+    # Match orders (same as Exchange Server II)
+    # Validate the order has a payment to back it (make sure the counterparty also made a payment)
+    # Make sure that you end up executing all resulting transactions!
+
     matched_ord = match_order(order)
     if (matched_ord != None):
         current_time = datetime.now()
@@ -117,18 +217,72 @@ def fill_order(order, txes=[]):
                 child_list.append(child_ord)
                 matched_ord.child = child_list
             fill_order(child_ord)
+        #add to the list and execute
+        amount1 = math.ceil(min(order.buy_amount, matched_ord.sell_amount))
+        amount2 = math.ceil(min(matched_ord.buy_amount, order.sell_amount))
+        tx1 = {'amount': amount1,
+               'platform': order.buy_currency,
+               'order_id': order.id,
+               'order': order,
+               'receiver_pk': order.receiver_pk}
+        tx2 = {'amount': amount2,
+               'platform': matched_ord.buy_currency,
+               'order_id': matched_ord.id,
+               'order': matched_ord,
+               'receiver_pk': matched_ord.receiver_pk}
+        txes = []
+        txes.append(tx1)
+        txes.append(tx2)
+        execute_txes(txes)
 
     g.session.commit()
     return
 
 
-def log_message(d):
-    # Takes input dictionary d and writes it to the Log table
-    # Hint: use json.dumps or str() to get it in a nice string form
-    msg = json.dumps(d)
-    g.session.add(Log(message=msg))
-    g.session.commit()
-    return
+def execute_txes(txes):
+    if txes is None:
+        return True
+    if len(txes) == 0:
+        return True
+    print(f"Trying to execute {len(txes)} transactions")
+    print(f"IDs = {[tx['order_id'] for tx in txes]}")
+    eth_sk, eth_pk = get_eth_keys()
+    algo_sk, algo_pk = get_algo_keys()
+
+    if not all(tx['platform'] in ["Algorand", "Ethereum"] for tx in txes):
+        print("Error: execute_txes got an invalid platform!")
+        print(tx['platform'] for tx in txes)
+
+    algo_txes = [tx for tx in txes if tx['platform'] == "Algorand"]
+    eth_txes = [tx for tx in txes if tx['platform'] == "Ethereum"]
+
+    # TODO:
+    #       1. Send tokens on the Algorand and eth testnets, appropriately
+    #          We've provided the send_tokens_algo and send_tokens_eth skeleton methods in send_tokens.py
+    #       2. Add all transactions to the TX table
+
+    algo_tx_id = send_tokens_algo(g.acl, algo_sk, algo_txes)
+    eth_tx_id = send_tokens_eth(g.w3, eth_sk, eth_txes)
+
+    for tx in algo_tx_id:
+        # tx['tx_id'] = algotx_id[i]
+        tx_obj = TX(platform=tx['platform'],
+                    receiver_pk=tx['receiver_pk'],
+                    order_id=tx['order_id'],
+                    order=tx['order'],
+                    tx_id=tx['tx_id'])
+        g.session.add(tx_obj)
+        g.session.commit()
+
+    for tx in eth_tx_id:
+        # tx['tx_id'] = ethtx_id[i]
+        tx_obj = TX(platform=tx['platform'],
+                    receiver_pk=tx['receiver_pk'],
+                    order_id=tx['order_id'],
+                    order=tx['order'],
+                    tx_id=tx['tx_id'])
+        g.session.add(tx_obj)
+        g.session.commit()
 
 def obj_to_dict(order):
     res_dict = {}
@@ -141,43 +295,70 @@ def obj_to_dict(order):
     res_dict['signature'] = order.signature
     return res_dict
 
-""" End of helper methods """
+""" End of Helper methods"""
+
+
+@app.route('/address', methods=['POST'])
+def address():
+    if request.method == "POST":
+        content = request.get_json(silent=True)
+        if 'platform' not in content.keys():
+            print(f"Error: no platform provided")
+            return jsonify("Error: no platform provided")
+        if not content['platform'] in ["Ethereum", "Algorand"]:
+            print(f"Error: {content['platform']} is an invalid platform")
+            return jsonify(f"Error: invalid platform provided: {content['platform']}")
+
+        if content['platform'] == "Ethereum":
+            # Your code here
+            eth_sk, eth_pk = get_eth_keys()
+            return jsonify(eth_pk)
+        if content['platform'] == "Algorand":
+            # Your code here
+            algo_sk, algo_pk = get_algo_keys()
+            return jsonify(algo_pk)
 
 
 @app.route('/trade', methods=['POST'])
 def trade():
-    print("In trade endpoint")
+    print("In trade", file=sys.stderr)
+    connect_to_blockchains()
+    #get_keys()
     if request.method == "POST":
         content = request.get_json(silent=True)
-        print(f"content = {json.dumps(content)}")
-        columns = ["sender_pk", "receiver_pk", "buy_currency", "sell_currency", "buy_amount", "sell_amount", "platform"]
+        columns = ["buy_currency", "sell_currency", "buy_amount", "sell_amount", "platform", "tx_id", "receiver_pk"]
         fields = ["sig", "payload"]
-
+        error = False
         for field in fields:
             if not field in content.keys():
                 print(f"{field} not received by Trade")
-                print(json.dumps(content))
-                log_message(content)
-                return jsonify(False)
+                error = True
+        if error:
+            print(json.dumps(content))
+            return jsonify(False)
 
+        error = False
         for column in columns:
             if not column in content['payload'].keys():
                 print(f"{column} not received by Trade")
-                print(json.dumps(content))
-                log_message(content)
-                return jsonify(False)
+                error = True
+        if error:
+            print(json.dumps(content))
+            return jsonify(False)
 
         # Your code here
-        # Note that you can access the database session using g.session
 
-        # TODO: Check the signature
+        # 1. Check the signature
 
+        # 2. Add the order to the table
 
-        # TODO: Add the order to the database
+        # 3a. Check if the order is backed by a transaction equal to the sell_amount (this is new)
 
-        # TODO: Fill the order
+        # 3b. Fill the order (as in Exchange Server II) if the order is valid
 
-        # TODO: Be sure to return jsonify(True) or jsonify(False) depending on if the method was successful
+        # 4. Execute the transactions
+
+        # If all goes well, return jsonify(True). else return jsonify(False)
         payload = content['payload']
         if content['payload']['platform'] == 'Ethereum':
             result = check_sig(content['payload'], content['sig'])
@@ -191,6 +372,11 @@ def trade():
                                   signature=content['sig'])
                 g.session.add(order_obj)
                 g.session.commit()
+
+                tx = g.w3.eth.get_transaction(payload['tx_id'])
+                eth_sk, eth_pk = get_eth_keys()
+                if tx['from'] != payload['sender_pk'] or tx['to'] != eth_pk or tx['value'] != payload['sell_amount']:
+                    return jsonify(False)
                 fill_order(order_obj)
 
             else:
@@ -208,18 +394,31 @@ def trade():
                                   signature=content['sig'])
                 g.session.add(order_obj)
                 g.session.commit()
-                fill_order(order_obj)
+                try:
+                    temp = connect_to_algo(connection_type='indexer')
+                    response = temp.search_transactions(txid=payload['tx_id'])
+                    if len(response["transactions"]) > 0:
+                        algo_sk, algo_pk = get_algo_keys()
+                        if (response["transactions"][0]["sender"] != payload['sender_pk'] or
+                                response["transactions"][0]["payment-transaction"]["receiver"] != algo_pk or
+                                response["transactions"][0]["payment-transaction"]["amount"] != payload['sell_amount']):
+                            return jsonify(False)
+                        fill_order(order_obj)
+                except:
+                    print(traceback.format_exc())
+                    return jsonify(False)
 
             else:
                 log_message(json.dumps(content['payload']))
-
         return jsonify(True)
 
 
 @app.route('/order_book')
 def order_book():
-    # Your code here
-    # Note that you can access the database session using g.session
+    fields = ["buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id", "receiver_pk",
+              "sender_pk"]
+
+    # Same as before
     fields = ["sender_pk", "receiver_pk", "buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature"]
 
     result = {'data': []}
