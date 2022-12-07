@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 
 from algosdk.v2client import algod
 from algosdk.v2client import indexer
@@ -132,7 +131,8 @@ def send_tokens_eth(w3, sender_sk, txes):
     # TODO: For each of the txes, sign and send them to the testnet
     # Make sure you track the nonce -locally-
     nonce_ori = w3.eth.get_transaction_count(sender_pk, "pending")
-    txes = []
+    txes_res = []
+    tx_ids = []
     for i, tx in enumerate(txes):
         # Your code here
         tx_dict = {
@@ -150,8 +150,9 @@ def send_tokens_eth(w3, sender_sk, txes):
         signed_txn = w3.eth.account.sign_transaction(tx_dict, sender_sk)
         tx_id = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         txinfo = wait_for_confirmation_eth(w3, tx_id)
+        tx_ids.append(tx_id)
         tx['tx_id'] = tx_id
-        txes.append(tx)
+        txes_res.append(tx)
         print(f"Sent {tx['amount']} eth in transaction: {tx_id}\n")
 
-    return txes
+    return txes_res
