@@ -158,7 +158,7 @@ def insert_order(order):
     fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount']
     order_res = Order(**{f: order[f] for f in fields})
 
-    g.session.add(order_res)
+    g.session.add(Order(order_res))
     g.session.commit()
     return order_res
 
@@ -271,7 +271,7 @@ def execute_txes(txes):
                     order_id=tx['order_id'],
                     order=tx['order'],
                     tx_id=tx['tx_id'])
-        g.session.add(tx_obj)
+        g.session.add(TX(tx_obj))
         g.session.commit()
 
     for tx in eth_tx_id:
@@ -280,7 +280,7 @@ def execute_txes(txes):
                     order_id=tx['order_id'],
                     order=tx['order'],
                     tx_id=tx['tx_id'])
-        g.session.add(tx_obj)
+        g.session.add(TX(tx_obj))
         g.session.commit()
 
 def obj_to_dict(order):
@@ -371,7 +371,7 @@ def trade():
                                   sell_amount=payload['sell_amount'],
                                   signature=content['sig'],
                                   tx_id=payload['tx_id'])
-                g.session.add(order_obj)
+                g.session.add(Order(order_obj))
                 g.session.commit()
 
                 tx = g.w3.eth.get_transaction(payload['tx_id'])
@@ -394,7 +394,7 @@ def trade():
                                   sell_amount=payload['sell_amount'],
                                   signature=content['sig'],
                                   tx_id = payload['tx_id'])
-                g.session.add(order_obj)
+                g.session.add(Order(order_obj))
                 g.session.commit()
                 try:
                     temp = connect_to_algo(connection_type='indexer')
