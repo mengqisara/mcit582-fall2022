@@ -128,7 +128,8 @@ def get_eth_keys(filename="eth_mnemonic.txt"):
     w3 = connect_to_eth()
     w3.eth.account.enable_unaudited_hdwallet_features()
     mnemonic_secret = "axis fence motion nest plastic skirt expand voyage story inquiry wealth gloom"
-    account = w3.eth.account.from_mnemonic(filename)
+    with open(filename, "r") as f:
+        account = w3.eth.account.from_mnemonic(f.read())
     eth_pk = account._address
     eth_sk = account._private_key
 
