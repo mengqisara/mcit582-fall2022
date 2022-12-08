@@ -137,14 +137,13 @@ def get_eth_keys(filename="eth_mnemonic.txt"):
 def match_order(order):
     max_profit = 0
     matched_order = None
+
     orders = g.session.query(Order).filter(Order.filled == None, Order.buy_currency == order.sell_currency,
                                            Order.sell_currency == order.buy_currency).all()
     for o in orders:
         if order.buy_amount / order.sell_amount < o.sell_amount / o.buy_amount and o.sell_amount / o.buy_amount - order.buy_amount / order.sell_amount > max_profit:
             max_profit = o.sell_amount / o.buy_amount - order.buy_amount / order.sell_amount
-
             matched_order = o
-
     return matched_order
 
 def check_sig(payload, sig):
@@ -206,7 +205,6 @@ def fill_order(order, txes=[]):
                'order_id': matched_ord.id,
                'order': matched_ord,
                'receiver_pk': matched_ord.receiver_pk}
-        txes = []
         txes.append(tx1)
         txes.append(tx2)
         execute_txes(txes)
@@ -227,7 +225,7 @@ def fill_order(order, txes=[]):
         if matched_ord.buy_amount > order.sell_amount:
             buy_amount = matched_ord.buy_amount - order.sell_amount
             child_ord = create_child(matched_ord, buy_amount,
-                                     math.ceil(buy_amount / (matched_ord.buy_amount / matched_ord.sell_amount)))
+                                     math.ceil(buy_amount * matched_ord.sell_amount / matched_ord.buy_amount))
             child_list = []
             if matched_ord.child == None:
                 child_list.append(child_ord)
@@ -294,6 +292,7 @@ def obj_to_dict(order):
     res_dict['buy_amount'] = order.buy_amount
     res_dict['sell_amount'] = order.sell_amount
     res_dict['signature'] = order.signature
+    res_dict['tx_id'] = order.tx_id
     return res_dict
 
 """ End of Helper methods"""
@@ -418,11 +417,10 @@ def trade():
 
 @app.route('/order_book')
 def order_book():
-    fields = ["buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id", "receiver_pk",
-              "sender_pk"]
+
 
     # Same as before
-    fields = ["sender_pk", "receiver_pk", "buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature"]
+    fields = ["sender_pk", "receiver_pk", "buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id"]
 
     result = {'data': []}
     orders = g.session.query(Order)
