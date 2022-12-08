@@ -222,7 +222,6 @@ def fill_order(order, txes=[]):
                 child_list = order.child
                 child_list.append(child_ord)
                 order.child = child_list
-            fill_order(child_ord)
         if matched_ord.buy_amount > order.sell_amount:
             buy_amount = matched_ord.buy_amount - order.sell_amount
             child_ord = create_child(matched_ord, buy_amount,
@@ -235,7 +234,6 @@ def fill_order(order, txes=[]):
                 child_list = matched_ord.child
                 child_list.append(child_ord)
                 matched_ord.child = child_list
-            fill_order(child_ord)
 
     g.session.commit()
     return
