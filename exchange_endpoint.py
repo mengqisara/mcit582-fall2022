@@ -120,19 +120,18 @@ def get_algo_keys():
     return algo_sk, algo_pk
 
 
-def get_eth_keys(filename="eth_mnemonic.txt"):
+def get_eth_keys():
     #w3 = Web3()
 
     # TODO: Generate or read (using the mnemonic secret)
     # the ethereum public/private keys
     w3 = connect_to_eth()
     w3.eth.account.enable_unaudited_hdwallet_features()
-    #mnemonic_secret = "axis fence motion nest plastic skirt expand voyage story inquiry wealth gloom"
+    mnemonic_secret = "axis fence motion nest plastic skirt expand voyage story inquiry wealth gloom"
     #with open(filename, "r") as f:
-    mnemonic_secret = "initial chair key two unhappy liquid scissors fold swift relax custom resource"
     account = w3.eth.account.from_mnemonic(mnemonic_secret)
-    eth_pk = account.address
-    eth_sk = account.private_key
+    eth_pk = account._address
+    eth_sk = account._private_key
 
     return eth_sk, eth_pk
 
