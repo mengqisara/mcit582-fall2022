@@ -131,7 +131,7 @@ def send_tokens_eth(w3, sender_sk, txes):
     # TODO: For each of the txes, sign and send them to the testnet
     # Make sure you track the nonce -locally-
     nonce_ct = w3.eth.get_transaction_count(sender_pk, "pending")
-    #txes_res = []
+    txes_res = []
     tx_ids = []
     for tx in enumerate(txes):
         # Your code here
@@ -151,8 +151,8 @@ def send_tokens_eth(w3, sender_sk, txes):
         tx_id = w3.eth.send_raw_transaction(signed_txn.rawTransaction)
         txinfo = wait_for_confirmation_eth(w3, tx_id)
         tx_ids.append(tx_id)
-        #tx['tx_id'] = tx_id
-        #txes_res.append(tx)
+        tx['tx_id'] = tx_id
+        txes_res.append(tx)
         print(f"Sent {tx['amount']} eth in transaction: {tx_id}\n")
 
-    return tx_ids
+    return txes_res
