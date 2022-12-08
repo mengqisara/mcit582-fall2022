@@ -158,7 +158,7 @@ def insert_order(order):
     fields = ['sender_pk', 'receiver_pk', 'buy_currency', 'sell_currency', 'buy_amount', 'sell_amount']
     order_res = Order(**{f: order[f] for f in fields})
 
-    g.session.add(Order(order_res))
+    g.session.add(order_res)
     g.session.commit()
     return order_res
 
@@ -221,7 +221,7 @@ def fill_order(order, txes=[]):
                 child_list = order.child
                 child_list.append(child_ord)
                 order.child = child_list
-            #fill_order(child_ord)
+            fill_order(child_ord)
         if matched_ord.buy_amount > order.sell_amount:
             buy_amount = matched_ord.buy_amount - order.sell_amount
             child_ord = create_child(matched_ord, buy_amount,
@@ -234,7 +234,7 @@ def fill_order(order, txes=[]):
                 child_list = matched_ord.child
                 child_list.append(child_ord)
                 matched_ord.child = child_list
-            #fill_order(child_ord)
+            fill_order(child_ord)
 
     g.session.commit()
     return
@@ -271,7 +271,7 @@ def execute_txes(txes):
                     order_id=tx['order_id'],
                     order=tx['order'],
                     tx_id=tx['tx_id'])
-        g.session.add(TX(tx_obj))
+        g.session.add(tx_obj)
         g.session.commit()
 
     for tx in eth_tx_id:
@@ -280,7 +280,7 @@ def execute_txes(txes):
                     order_id=tx['order_id'],
                     order=tx['order'],
                     tx_id=tx['tx_id'])
-        g.session.add(TX(tx_obj))
+        g.session.add(tx_obj)
         g.session.commit()
 
 def obj_to_dict(order):
@@ -371,7 +371,7 @@ def trade():
                                   sell_amount=payload['sell_amount'],
                                   signature=content['sig'],
                                   tx_id=payload['tx_id'])
-                g.session.add(Order(order_obj))
+                g.session.add(order_obj)
                 g.session.commit()
 
                 tx = g.w3.eth.get_transaction(payload['tx_id'])
@@ -394,7 +394,7 @@ def trade():
                                   sell_amount=payload['sell_amount'],
                                   signature=content['sig'],
                                   tx_id = payload['tx_id'])
-                g.session.add(Order(order_obj))
+                g.session.add(order_obj)
                 g.session.commit()
                 try:
                     temp = connect_to_algo(connection_type='indexer')
