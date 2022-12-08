@@ -370,13 +370,13 @@ def trade():
                                   buy_amount=payload['buy_amount'],
                                   sell_amount=payload['sell_amount'],
                                   signature=content['sig'],
-                                  tx_id = payload['tx_id'])
+                                  tx_id=payload['tx_id'])
                 g.session.add(order_obj)
                 g.session.commit()
 
                 tx = g.w3.eth.get_transaction(payload['tx_id'])
-                eth_sk, eth_pk = get_eth_keys()
-                if tx['from'] != payload['sender_pk'] or tx['to'] != eth_pk or tx['value'] != payload['sell_amount']:
+                #eth_sk, eth_pk = get_eth_keys()
+                if tx['from'] != payload['sender_pk'] or tx['to'] != payload['receiver_pk'] or tx['value'] != payload['sell_amount']:
                     return jsonify(False)
                 fill_order(order_obj)
 
@@ -400,10 +400,11 @@ def trade():
                     temp = connect_to_algo(connection_type='indexer')
                     response = temp.search_transactions(txid=payload['tx_id'])
                     if len(response["transactions"]) > 0:
-                        algo_sk, algo_pk = get_algo_keys()
-                        if (response["transactions"][0]["sender"] != payload['sender_pk'] or
-                                response["transactions"][0]["payment-transaction"]["receiver"] != algo_pk or
-                                response["transactions"][0]["payment-transaction"]["amount"] != payload['sell_amount']):
+                        #algo_sk, algo_pk = get_algo_keys()
+                        if (response["transactions"]["sender"] != payload['sender_pk'] or
+                                response["transactions"]["payment-transaction"]["receiver"] != payload['receiver_pk'] or
+                                response["transactions"]["payment-transaction"]["amount"] != payload[
+                                    'sell_amount']):
                             return jsonify(False)
                         fill_order(order_obj)
                 except:
