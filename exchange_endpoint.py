@@ -193,33 +193,7 @@ def fill_order(order, txes=[]):
         order.counterparty_id = matched_ord.id
         g.session.commit()
 
-        if order.buy_amount > matched_ord.sell_amount:
-            buy_amount = order.buy_amount - matched_ord.sell_amount
-            child_ord = create_child(order, buy_amount,
-                                     math.ceil(buy_amount * order.sell_amount / order.buy_amount))
-            child_list = []
-            if order.child == None:
-                child_list.append(child_ord)
-                order.child = child_list
-            elif order.child != None:
-                child_list = order.child
-                child_list.append(child_ord)
-                order.child = child_list
-            fill_order(child_ord)
-        if matched_ord.buy_amount > order.sell_amount:
-            buy_amount = matched_ord.buy_amount - order.sell_amount
-            child_ord = create_child(matched_ord, buy_amount,
-                                     math.ceil(buy_amount / (matched_ord.buy_amount / matched_ord.sell_amount)))
-            child_list = []
-            if matched_ord.child == None:
-                child_list.append(child_ord)
-                matched_ord.child = child_list
-            elif matched_ord.child != None:
-                child_list = matched_ord.child
-                child_list.append(child_ord)
-                matched_ord.child = child_list
-            fill_order(child_ord)
-        #add to the list and execute
+        # add to the list and execute
         amount1 = math.ceil(min(order.buy_amount, matched_ord.sell_amount))
         amount2 = math.ceil(min(matched_ord.buy_amount, order.sell_amount))
         tx1 = {'amount': amount1,
@@ -236,6 +210,33 @@ def fill_order(order, txes=[]):
         txes.append(tx1)
         txes.append(tx2)
         execute_txes(txes)
+
+        if order.buy_amount > matched_ord.sell_amount:
+            buy_amount = order.buy_amount - matched_ord.sell_amount
+            child_ord = create_child(order, buy_amount,
+                                     math.ceil(buy_amount * order.sell_amount / order.buy_amount))
+            child_list = []
+            if order.child == None:
+                child_list.append(child_ord)
+                order.child = child_list
+            elif order.child != None:
+                child_list = order.child
+                child_list.append(child_ord)
+                order.child = child_list
+            #fill_order(child_ord)
+        if matched_ord.buy_amount > order.sell_amount:
+            buy_amount = matched_ord.buy_amount - order.sell_amount
+            child_ord = create_child(matched_ord, buy_amount,
+                                     math.ceil(buy_amount / (matched_ord.buy_amount / matched_ord.sell_amount)))
+            child_list = []
+            if matched_ord.child == None:
+                child_list.append(child_ord)
+                matched_ord.child = child_list
+            elif matched_ord.child != None:
+                child_list = matched_ord.child
+                child_list.append(child_ord)
+                matched_ord.child = child_list
+            #fill_order(child_ord)
 
     g.session.commit()
     return
@@ -267,7 +268,6 @@ def execute_txes(txes):
     eth_tx_id = send_tokens_eth(g.w3, eth_sk, eth_txes)
 
     for tx in algo_tx_id:
-        # tx['tx_id'] = algotx_id[i]
         tx_obj = TX(platform=tx['platform'],
                     receiver_pk=tx['receiver_pk'],
                     order_id=tx['order_id'],
@@ -277,7 +277,6 @@ def execute_txes(txes):
         g.session.commit()
 
     for tx in eth_tx_id:
-        # tx['tx_id'] = ethtx_id[i]
         tx_obj = TX(platform=tx['platform'],
                     receiver_pk=tx['receiver_pk'],
                     order_id=tx['order_id'],
@@ -371,7 +370,8 @@ def trade():
                                   sell_currency=payload['sell_currency'],
                                   buy_amount=payload['buy_amount'],
                                   sell_amount=payload['sell_amount'],
-                                  signature=content['sig'])
+                                  signature=content['sig'],
+                                  tx_id = payload['tx_id'])
                 g.session.add(order_obj)
                 g.session.commit()
 
@@ -393,7 +393,8 @@ def trade():
                                   sell_currency=payload['sell_currency'],
                                   buy_amount=payload['buy_amount'],
                                   sell_amount=payload['sell_amount'],
-                                  signature=content['sig'])
+                                  signature=content['sig'],
+                                  tx_id = payload['tx_id'])
                 g.session.add(order_obj)
                 g.session.commit()
                 try:
