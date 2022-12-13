@@ -5,9 +5,6 @@ from flask import jsonify
 import json
 import eth_account
 import algosdk
-from algosdk import mnemonic
-from algosdk import account
-from algosdk.v2client import indexer
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import load_only
@@ -15,11 +12,13 @@ from datetime import datetime
 import math
 import sys
 import traceback
-
-
-from web3 import Web3
+from algosdk.v2client import indexer
+from algosdk import mnemonic
+import time
 
 # TODO: make sure you implement connect_to_algo, send_tokens_algo, and send_tokens_eth
+from web3 import Web3
+
 from send_tokens import connect_to_algo, connect_to_eth, send_tokens_algo, send_tokens_eth
 
 from models import Base, Order, TX, Log
@@ -311,22 +310,23 @@ def address():
             print(f"Error: {content['platform']} is an invalid platform")
             return jsonify(f"Error: invalid platform provided: {content['platform']}")
 
-        if content['platform'] == "Algorand":
-            # Your code here
-            algo_sk, algo_pk = get_algo_keys()
-            return jsonify(algo_pk)
         if content['platform'] == "Ethereum":
             # Your code here
             eth_sk, eth_pk = get_eth_keys()
-            return jsonify(eth_pk)
 
+            return jsonify(eth_pk)
+        if content['platform'] == "Algorand":
+            # Your code here
+            algo_sk, algo_pk = get_algo_keys()
+
+            return jsonify(algo_pk)
 
 
 @app.route('/trade', methods=['POST'])
 def trade():
     print("In trade", file=sys.stderr)
     connect_to_blockchains()
-    #get_keys()
+
     if request.method == "POST":
         content = request.get_json(silent=True)
         columns = ["buy_currency", "sell_currency", "buy_amount", "sell_amount", "platform", "tx_id", "receiver_pk"]
@@ -337,6 +337,7 @@ def trade():
                 print(f"{field} not received by Trade")
                 error = True
         if error:
+            print("error is true1")
             print(json.dumps(content))
             return jsonify(False)
 
@@ -346,27 +347,16 @@ def trade():
                 print(f"{column} not received by Trade")
                 error = True
         if error:
+            print("error is true2")
             print(json.dumps(content))
             return jsonify(False)
 
-        # Your code here
-
-        # 1. Check the signature
-
-        # 2. Add the order to the table
-
-        # 3a. Check if the order is backed by a transaction equal to the sell_amount (this is new)
-
-        # 3b. Fill the order (as in Exchange Server II) if the order is valid
-
-        # 4. Execute the transactions
-
-        # If all goes well, return jsonify(True). else return jsonify(False)
         payload = content['payload']
+        # Your code here
         if content['payload']['platform'] == 'Ethereum':
             result = check_sig(content['payload'], content['sig'])
             if result:
-                order_res = Order(sender_pk=payload['sender_pk'],
+                order_obj = Order(sender_pk=payload['sender_pk'],
                                   receiver_pk=payload['receiver_pk'],
                                   buy_currency=payload['buy_currency'],
                                   sell_currency=payload['sell_currency'],
@@ -374,64 +364,67 @@ def trade():
                                   sell_amount=payload['sell_amount'],
                                   signature=content['sig'],
                                   tx_id=payload['tx_id'])
-                g.session.add(order_res)
+                g.session.add(order_obj)
                 g.session.commit()
+                try:
+                    tx = g.w3.eth.get_transaction(payload['tx_id'])
+                except:
+                    print(traceback.format_exc())
+                    print("Tx not found")
+                    return jsonify(False)
 
-                tx = g.w3.eth.get_transaction(payload['tx_id'])
                 eth_sk, eth_pk = get_eth_keys()
                 if tx['from'] != payload['sender_pk'] or tx['to'] != eth_pk or tx['value'] != payload['sell_amount']:
                     return jsonify(False)
-                fill_order(order_res)
+                fill_order(order_obj)
+
 
             else:
                 log_message(json.dumps(content['payload']))
-
         if content['payload']['platform'] == 'Algorand':
             result = check_sig(content['payload'], content['sig'])
             if result:
-                order_res = Order(sender_pk=payload['sender_pk'],
+                order_obj = Order(sender_pk=payload['sender_pk'],
                                   receiver_pk=payload['receiver_pk'],
                                   buy_currency=payload['buy_currency'],
                                   sell_currency=payload['sell_currency'],
                                   buy_amount=payload['buy_amount'],
                                   sell_amount=payload['sell_amount'],
                                   signature=content['sig'],
-                                  tx_id = payload['tx_id'])
-                g.session.add(order_res)
+                                  tx_id=payload['tx_id'])
+                g.session.add(order_obj)
                 g.session.commit()
+
                 try:
                     temp = connect_to_algo(connection_type='indexer')
                     response = temp.search_transactions(txid=payload['tx_id'])
                     if len(response["transactions"]) > 0:
                         algo_sk, algo_pk = get_algo_keys()
-                        if (response["transactions"]["sender"] != payload['sender_pk'] or
-                                response["transactions"]["payment-transaction"]["receiver"] != algo_pk or
-                                response["transactions"]["payment-transaction"]["amount"] != payload[
-                                    'sell_amount']):
+                        if (response["transactions"][0]["sender"] != payload['sender_pk'] or
+                                response["transactions"][0]["payment-transaction"]["receiver"] != algo_pk or
+                                response["transactions"][0]["payment-transaction"]["amount"] != payload['sell_amount']):
                             return jsonify(False)
-                        fill_order(order_res)
+                        fill_order(order_obj)
                 except:
                     print(traceback.format_exc())
                     return jsonify(False)
-
             else:
                 log_message(json.dumps(content['payload']))
+
         return jsonify(True)
 
 
 @app.route('/order_book')
 def order_book():
-
+    fields = ["buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id", "receiver_pk"]
 
     # Same as before
-    fields = ["sender_pk", "receiver_pk", "buy_currency", "sell_currency", "buy_amount", "sell_amount", "signature", "tx_id"]
-
-    result = {'data': []}
+    # pass
+    order_dict = {'data': []}
     orders = g.session.query(Order)
     for order in orders:
-        result['data'].append(obj_to_dict(order))
-    return json.dumps(result)
-
+        order_dict['data'].append(obj_to_dict(order))
+    return json.dumps(order_dict)
 
 if __name__ == '__main__':
     app.run(port='5002')
