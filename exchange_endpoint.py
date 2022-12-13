@@ -212,32 +212,31 @@ def fill_order(order, txes=[]):
         txes.append(tx2)
         execute_txes(txes)
 
+        child_list = []
         if order.buy_amount > matched_ord.sell_amount:
             buy_amount = order.buy_amount - matched_ord.sell_amount
             child_ord = create_child(order, buy_amount,
                                      math.ceil(buy_amount * order.sell_amount / order.buy_amount))
-            child_list = []
+
             if order.child == None:
                 child_list.append(child_ord)
                 order.child = child_list
-            elif order.child != None:
+            else:
                 child_list = order.child
                 child_list.append(child_ord)
                 order.child = child_list
-            fill_order(child_ord)
+
         if matched_ord.buy_amount > order.sell_amount:
             buy_amount = matched_ord.buy_amount - order.sell_amount
             child_ord = create_child(matched_ord, buy_amount,
                                      math.ceil(buy_amount * matched_ord.sell_amount / matched_ord.buy_amount))
-            child_list = []
             if matched_ord.child == None:
                 child_list.append(child_ord)
                 matched_ord.child = child_list
-            elif matched_ord.child != None:
+            else:
                 child_list = matched_ord.child
                 child_list.append(child_ord)
                 matched_ord.child = child_list
-            fill_order(child_ord)
 
     g.session.commit()
     return
@@ -312,14 +311,15 @@ def address():
             print(f"Error: {content['platform']} is an invalid platform")
             return jsonify(f"Error: invalid platform provided: {content['platform']}")
 
-        if content['platform'] == "Ethereum":
-            # Your code here
-            eth_sk, eth_pk = get_eth_keys()
-            return jsonify(eth_pk)
         if content['platform'] == "Algorand":
             # Your code here
             algo_sk, algo_pk = get_algo_keys()
             return jsonify(algo_pk)
+        if content['platform'] == "Ethereum":
+            # Your code here
+            eth_sk, eth_pk = get_eth_keys()
+            return jsonify(eth_pk)
+
 
 
 @app.route('/trade', methods=['POST'])
@@ -366,7 +366,7 @@ def trade():
         if content['payload']['platform'] == 'Ethereum':
             result = check_sig(content['payload'], content['sig'])
             if result:
-                order_obj = Order(sender_pk=payload['sender_pk'],
+                order_res = Order(sender_pk=payload['sender_pk'],
                                   receiver_pk=payload['receiver_pk'],
                                   buy_currency=payload['buy_currency'],
                                   sell_currency=payload['sell_currency'],
@@ -374,14 +374,14 @@ def trade():
                                   sell_amount=payload['sell_amount'],
                                   signature=content['sig'],
                                   tx_id=payload['tx_id'])
-                g.session.add(order_obj)
+                g.session.add(order_res)
                 g.session.commit()
 
                 tx = g.w3.eth.get_transaction(payload['tx_id'])
-                #eth_sk, eth_pk = get_eth_keys()
-                if tx['from'] != payload['sender_pk'] or tx['to'] != payload['receiver_pk'] or tx['value'] != payload['sell_amount']:
+                eth_sk, eth_pk = get_eth_keys()
+                if tx['from'] != payload['sender_pk'] or tx['to'] != eth_pk or tx['value'] != payload['sell_amount']:
                     return jsonify(False)
-                fill_order(order_obj)
+                fill_order(order_res)
 
             else:
                 log_message(json.dumps(content['payload']))
@@ -389,7 +389,7 @@ def trade():
         if content['payload']['platform'] == 'Algorand':
             result = check_sig(content['payload'], content['sig'])
             if result:
-                order_obj = Order(sender_pk=payload['sender_pk'],
+                order_res = Order(sender_pk=payload['sender_pk'],
                                   receiver_pk=payload['receiver_pk'],
                                   buy_currency=payload['buy_currency'],
                                   sell_currency=payload['sell_currency'],
@@ -397,19 +397,19 @@ def trade():
                                   sell_amount=payload['sell_amount'],
                                   signature=content['sig'],
                                   tx_id = payload['tx_id'])
-                g.session.add(order_obj)
+                g.session.add(order_res)
                 g.session.commit()
                 try:
                     temp = connect_to_algo(connection_type='indexer')
                     response = temp.search_transactions(txid=payload['tx_id'])
                     if len(response["transactions"]) > 0:
-                        #algo_sk, algo_pk = get_algo_keys()
+                        algo_sk, algo_pk = get_algo_keys()
                         if (response["transactions"]["sender"] != payload['sender_pk'] or
-                                response["transactions"]["payment-transaction"]["receiver"] != payload['receiver_pk'] or
+                                response["transactions"]["payment-transaction"]["receiver"] != algo_pk or
                                 response["transactions"]["payment-transaction"]["amount"] != payload[
                                     'sell_amount']):
                             return jsonify(False)
-                        fill_order(order_obj)
+                        fill_order(order_res)
                 except:
                     print(traceback.format_exc())
                     return jsonify(False)
@@ -430,7 +430,7 @@ def order_book():
     orders = g.session.query(Order)
     for order in orders:
         result['data'].append(obj_to_dict(order))
-    return jsonify(result)
+    return json.dumps(result)
 
 
 if __name__ == '__main__':
